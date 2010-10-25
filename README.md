@@ -13,15 +13,16 @@ Get your Kake and eat it too; Build your project from Firefox.
 
 ### What is Kake good for?
 Kake can do anything that any other build tool can do because of the
-extraordinary system capabilities given to Firefox addons. Here are a few good
-ideas:
+extraordinary system capabilities available to Firefox addons. Here are a few
+good ideas:
+
 * Write [LESS CSS](http://github.com/cloudhead/less.js); build it instead!
 * Compile your JS files all into one compressed file for super fast page loads.
 * Build a JS module library. (More on this later.)
 * Build, test, and deploy your website with one click.
 * You can even build your compiled projects like [Node.js](http://github.com/ry/node)
 
-*Kake is a work in progress, so stay tuned.*
+#### *Kake is a work in progress, so stay tuned.*
 
 
 Copyright and License
