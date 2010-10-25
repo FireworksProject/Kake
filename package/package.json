@@ -1,0 +1,28 @@
+{
+    "name": "fireworks.kake",
+    "description": "JS library for Kake: the project build tool.",
+    "version": "0.0.1",
+    "licenses": [{
+        "type": "MIT",
+        "url": "http://www.opensource.org/licenses/mit-license.php"
+    }]
+    "bugs": "http://github.com/FireworksProject/Kake/issues",
+    "maintainers": [{
+        "name": "Kris Walker",
+        "email": "kixxauth@gmail.com",
+        "web": "http://www.kixx.name"
+    }],
+    "keywords": [
+        "build",
+        "tool",
+        "kake",
+        "jake",
+        "rake",
+        "make"
+    ],
+    "respositories": [{
+        "type": "git",
+        "url": "http://github.com/FireworksProject/Kake.git"
+        "path": "package"
+    }]
+}
