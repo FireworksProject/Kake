@@ -236,3 +236,14 @@ test('Components.utils.Sandbox() function error.', function () {
     }
 });
 
+test('Components.utils.Sandbox() module implementation.', function () {
+    var sandbox = make_sandbox();
+
+    Cu.evalInSandbox( "var exports = {};"
+                    , sandbox, '1.8', '<string>', 1);
+    Cu.evalInSandbox( "exports.a = 1;"
+                    , sandbox, '1.8', 'module.js', 1);
+
+    strictEqual(sandbox.exports.a, 1, 'Module exported.');
+});
+
