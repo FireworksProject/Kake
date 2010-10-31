@@ -35,6 +35,7 @@ test('Components.utils.Sandbox() globals.', function() {
                         "results.globals = [];"+
                         "for (var n in G) { results.globals.push(n); }"+
                         "results.global_str = G.toString();"+
+                        "results.global_hasOwnProperty = G.hasOwnProperty('toString');"+
                         "results.global_opstr = Object.prototype.toString.call(G);"+
                         "results.dump = typeof dump;"+
                         "results.Components = typeof Components"+
@@ -53,6 +54,10 @@ test('Components.utils.Sandbox() globals.', function() {
     strictEqual( sandbox.results.global_str
                , '[object Sandbox]'
                , 'this.toString()'
+               );
+    strictEqual( sandbox.results.global_hasOwnProperty
+               , false
+               , 'this.hasOwnProperty()'
                );
     strictEqual( sandbox.results.global_opstr
                , '[object Sandbox]'
@@ -234,16 +239,5 @@ test('Components.utils.Sandbox() function error.', function () {
                    , 'Line number.'
                    );
     }
-});
-
-test('Components.utils.Sandbox() module implementation.', function () {
-    var sandbox = make_sandbox();
-
-    Cu.evalInSandbox( "var exports = {};"
-                    , sandbox, '1.8', '<string>', 1);
-    Cu.evalInSandbox( "exports.a = 1;"
-                    , sandbox, '1.8', 'module.js', 1);
-
-    strictEqual(sandbox.exports.a, 1, 'Module exported.');
 });
 
