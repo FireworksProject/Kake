@@ -1,0 +1,14 @@
+{
+    "name": "kake", 
+    "license": "MIT", 
+    "author": "Kris Walker (http://www.kixx.name/) <kixxauth@gmail.com>", 
+    "version": "0.0.0pre", 
+    "keywords": [
+        "javascript", 
+        "build", 
+        "toolkit"
+    ], 
+    "id": "jid0-96kculK931xhXBSoqiMXQB0rFz0", 
+    "description": "The webby build toolkit.",
+    "dependencies": ["jetpack-core", "addon-kit"]
+}
