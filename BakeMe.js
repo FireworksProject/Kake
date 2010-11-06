@@ -1,53 +1,129 @@
 var kake = require('kake')
-  , promises = require('fireworks/promises/full')
-  , iter = require('fireworks/iter')
-  , trim = require('fireworks/utils/string/trim')
-
+  , console = kake.console
   , task = kake.task
   , settings = kake.settings
-  , path = kake.path
-  , iter = kake.iter
-  , stash = kake.stash
-  , print = kake.print
-  , print_err = kake.print_err
-  , template = kake.template
+  //, promises = require('fireworks/promises/full')
+  //, iter = require('fireworks/iter')
+  //, trim = require('fireworks/utils/string/trim')
 
-  , PROJECT = path(settings('PROJECT'))
-  , SOURCE = PROJECT.join('src')
-  , DIST = PROJECT.join('moz-ext')
-  , TEMP = PROJECT.join('temp')
-  , LICENSE_TPL = SOURCE.join('MIT-LICENSE.template')
-  , LICENSE_LOCATIONS = []
-  , SHARED = PROJECT.join('shared')
-  , FIREWORKS_SRC = SHARED.join('fireworks')
-  , JQUERY_SRC = SHARED.join('jquery')
-  , JQUERY_DIST = JQUERY_SRC.join('jquery.js')
+  , path = kake.path
+
+  //, iter = kake.iter
+  //, stash = kake.stash
+  //, print = kake.print
+  //, print_err = kake.print_err
+  //, template = kake.template
+
+  //, PROJECT = path(settings('PROJECT_DIR'))
+  //, SOURCE = PROJECT.join('src')
+  //, STAGED = PROJECT.join('staged')
+  //, DIST = PROJECT.join('moz-ext')
+  //, TEMP = PROJECT.join('temp')
+  //, LICENSE_TPL = SOURCE.join('MIT-LICENSE.template')
+  //, LICENSE_LOCATIONS = []
+  //, SHARED = PROJECT.join('shared')
+  //, FIREWORKS_SRC = SHARED.join('fireworks')
+  //, JQUERY_SRC = SHARED.join('jquery')
+  //, JQUERY_DIST = JQUERY_SRC.join('jquery.js')
   ;
 
-settings('NAME', 'Kake');
-settings('TIMEOUT', 10000);
+// TODO: remove this block (testing)
+console.log('TESTING');
+var x;
+try {
+    x = require('foo');
+} catch (e) {
+    console.error(e);
+}
+try {
+    x = require('es5');
+} catch (e) {
+    console.error(e);
+}
+try {
+    x = require('/es5');
+} catch (e) {
+    console.error(e);
+}
+try {
+    x = require('./es5');
+} catch (e) {
+    console.error(e);
+}
+try {
+    x = require('../es5');
+} catch (e) {
+    console.error(e);
+}
+try {
+    x = require('jetpack-core/es5');
+} catch (e) {
+    console.error(e);
+}
+try {
+    x = require('/jetpack-core/es5');
+} catch (e) {
+    console.error(e);
+}
+try {
+    x = require('./jetpack-core/es5');
+} catch (e) {
+    console.error(e);
+}
+try {
+    x = require('../jetpack-core/es5');
+} catch (e) {
+    console.error(e);
+}
+// END remove (testing)
 
-settings( 'jQuery Download URL'
+// ### Standard settings.
+// These are special settings that Kake will use if you set them. Most of the
+// time, if they are not set, a default value is assigned for you. To make
+// them easier to spot, they are always in ALL_CAPS.
+//settings('NAME', 'Kake');
+
+// ### Project settings.
+// These settings have no special meaning for Kake and are just for this
+// project. Each setting has a name, a value, and an optional description.
+
+        // The name of this setting.
+/*settings( 'jQuery Download URL'
+
+        // The value of this setting.
         , 'https://ajax.googleapis.com/ajax/libs/jquery/VERSION/jquery.js'
+
+        // The description of this setting.
         , ( 'The URL to download jQuery from. '+
             'The "VERSION" string will be replaced with the version number.')
-        );
-settings( 'jQuery version'
+        );*/
+
+// More settings:
+
+/*settings( 'jQuery version'
         , '1.4.2'
         , 'The version of jQuery to use for this build.'
         );
+
 settings( 'Fireworks.js Download URL'
         , ''
         , 'URL to use for cloning the Fireworks.js repository from GitHub.'
         );
+
 settings( 'Fireworks.js version'
         , '0.0.0a1'
         , 'The version of Fireworks.js to use for this build.'
-        );
+        );*/
 
-function report_errors(errs) { errs.each(print_err(errs)); }
+// A function created just for this build file that is used to easily output an
+// Iter list of errors. Search the docs for more about Iter objects. They're
+// cool and that's how we roll.
+//function report_errors(errs) {
+//    errs.each(function (e) { print_err(e); });
+//}
 
-function read_version_file(file_path) {
+// A quick and dirty way to read a version string from a file.
+/*function read_version_file(file_path) {
     var p = promises.promise()
       , when_fulfilled, when_smashed
       ;
@@ -63,9 +139,12 @@ function read_version_file(file_path) {
 
     f.read()(when_fulfilled, when_smashed);
     return p.when;
-}
+} */
 
-// TODO: Make TEMP an actual dir?
+/*
+task('staged_dir', function () {
+    STAGED.rm().dir();
+});
 
 task('licensing', function (t) {
     var last = stash.get('license.last_update') || 0
@@ -156,3 +235,4 @@ task('update_rdf', function (t) {
 
 task('deploy', ['pre_deploy', 'update_rdf'], function (t) {
 });
+*/
