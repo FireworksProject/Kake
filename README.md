@@ -30,7 +30,7 @@ Copyright and License
 copyright: (c) 2010 by Fireworks Technology Projects Inc.
 
 Unless otherwise indicated, all source code is licensed under the MIT license.
-See MIT-LICENSE for details.
+See MIT-LICENSE or http://www.opensource.org/licenses/mit-license.php for details.
 
 And, unless otherwise indicated, all content, including written copy and images
 but not including source code, is licensed under a Creative Commons
