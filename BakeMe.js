@@ -6,7 +6,7 @@ var kake = require('kake')
   //, iter = require('fireworks/iter')
   //, trim = require('fireworks/utils/string/trim')
 
-  , path = kake.path.path
+  , path = kake.path
 
   //, iter = kake.iter
   //, stash = kake.stash

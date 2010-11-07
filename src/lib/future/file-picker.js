@@ -19,9 +19,12 @@
 , regexp: true
 , newcap: true
 , immed: true
+, strict: true
 */
 
 /*global require: false, exports: true, console: false */
+
+'use strict';
 
 var Cc           = require('chrome').Cc
   , Ci           = require('chrome').Ci

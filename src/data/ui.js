@@ -19,6 +19,7 @@
 , regexp: true
 , newcap: true
 , immed: true
+, strict: true
 */
 
 /*global
@@ -43,9 +44,7 @@
         postMessage(['project', 'load']);
     }
 
-    window.addEventListener('load', function (ev) {
-        document.getElementById('test')
-            .addEventListener('click', testme, true);
-    }, false);
+    document.getElementById('test')
+        .addEventListener('click', testme, true);
 }(window, postMessage));
 
