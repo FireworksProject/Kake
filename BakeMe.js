@@ -1,12 +1,12 @@
 var kake = require('kake')
   , console = kake.console
-  , task = kake.task
+  //, task = kake.task
   , settings = kake.settings
   //, promises = require('fireworks/promises/full')
   //, iter = require('fireworks/iter')
   //, trim = require('fireworks/utils/string/trim')
 
-  , path = kake.path
+  , path = kake.path.path
 
   //, iter = kake.iter
   //, stash = kake.stash
@@ -14,9 +14,10 @@ var kake = require('kake')
   //, print_err = kake.print_err
   //, template = kake.template
 
-  //, PROJECT = path(settings('PROJECT_DIR'))
-  //, SOURCE = PROJECT.join('src')
-  //, STAGED = PROJECT.join('staged')
+  , DIR = path(settings('DIR'))
+  , SRC = DIR.join('src')
+  , LIB_DIR = DIR.join('lib')
+  , DATA_DIR = DIR.join('data')
   //, DIST = PROJECT.join('moz-ext')
   //, TEMP = PROJECT.join('temp')
   //, LICENSE_TPL = SOURCE.join('MIT-LICENSE.template')
@@ -26,56 +27,6 @@ var kake = require('kake')
   //, JQUERY_SRC = SHARED.join('jquery')
   //, JQUERY_DIST = JQUERY_SRC.join('jquery.js')
   ;
-
-// TODO: remove this block (testing)
-console.log('TESTING');
-var x;
-try {
-    x = require('foo');
-} catch (e) {
-    console.error(e);
-}
-try {
-    x = require('es5');
-} catch (e) {
-    console.error(e);
-}
-try {
-    x = require('/es5');
-} catch (e) {
-    console.error(e);
-}
-try {
-    x = require('./es5');
-} catch (e) {
-    console.error(e);
-}
-try {
-    x = require('../es5');
-} catch (e) {
-    console.error(e);
-}
-try {
-    x = require('jetpack-core/es5');
-} catch (e) {
-    console.error(e);
-}
-try {
-    x = require('/jetpack-core/es5');
-} catch (e) {
-    console.error(e);
-}
-try {
-    x = require('./jetpack-core/es5');
-} catch (e) {
-    console.error(e);
-}
-try {
-    x = require('../jetpack-core/es5');
-} catch (e) {
-    console.error(e);
-}
-// END remove (testing)
 
 // ### Standard settings.
 // These are special settings that Kake will use if you set them. Most of the
