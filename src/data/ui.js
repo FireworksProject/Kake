@@ -33,18 +33,33 @@
 (function (window, postMessage) {
     'use strict';
 
-    var document = window.document;
+    var document = window.document
 
-    // TODO: This module constructor should be imported from future.js somehow.
-    // <script> injection?
-    function Mailbox(opts) {
+      , loc = window.location.href
+
+      // WARNING! This technique is not stable and could go bad any time.
+      , lib_dir = loc.replace(/data\/kake\.html$/, 'lib/')
+
+      , send
+      , mailbox_handlers = {}
+      ;
+
+    function inject_script(url, callback) {
+        var script = document.createElement('script');
+        script.src = url;
+        script.onload = callback;
+        document.documentElement.appendChild(script);
     }
 
-    function testme() {
-        postMessage(['project', 'load']);
-    }
+    inject_script(lib_dir +'future/mailbox.js', function () {
+        var mailbox = window['/future/mailbox']
+                          .Mailbox({ classes: mailbox_handlers
+                                   , sender: postMessage
+                                   });
 
-    document.getElementById('test')
-        .addEventListener('click', testme, true);
+        onMessage = mailbox.receive;
+        send = mailbox.send;
+        console.log('loaded');
+    });
 }(window, postMessage));
 
