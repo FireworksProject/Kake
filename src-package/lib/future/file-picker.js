@@ -27,7 +27,10 @@ var Cc           = require('chrome').Cc
   , Ci           = require('chrome').Ci
   , setTimeout   = require('timer').setTimeout
   ;
-  
+
+// TODO: Make more functions
+// open_folder_picker
+// save_file_picker
 
 function open_file_picker(opts, callback) {
     opts = opts || {};

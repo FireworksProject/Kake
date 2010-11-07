@@ -32,13 +32,20 @@
 (function (window, postMessage) {
     'use strict';
 
+    var document = window.document;
+
     // TODO: This module constructor should be imported from future.js somehow.
     // <script> injection?
     function Mailbox(opts) {
     }
 
-    window.addEventListener('load', function (ev) {
+    function testme() {
         postMessage(['project', 'load']);
+    }
+
+    window.addEventListener('load', function (ev) {
+        document.getElementById('test')
+            .addEventListener('click', testme, true);
     }, false);
 }(window, postMessage));
 

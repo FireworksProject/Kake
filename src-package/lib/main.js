@@ -24,6 +24,8 @@
 /*global require: false, exports: true, console: false */
 
 var self              = require('self')
+  , loader            = require('securable-module')
+  , file              = require('file')
   , page_mod          = require('page-mod')
   , tabs              = require('tabs')
   , open_file_picker  = require('future/file-picker').open_file_picker
@@ -39,6 +41,29 @@ var self              = require('self')
   , ui
   ;
 
+function build_exports(base, id) {
+    //console.log('build_exports() base:', base, 'id:', id);
+    if (id === 'kake') {
+        return {console: console};
+    }
+    return null;
+}
+
+function load_build_script(path) {
+    var root_path = __url__.replace(/main\.js/, 'build-kit/')
+      , mod_loader
+      ;
+
+    //console.log('root path:', root_path);
+    //console.log('contents:', file.read(path));
+
+    // TODO: The call to file.read() should be in a try ... catch.
+    mod_loader = new loader.Loader({ rootPath: root_path
+                                   , getModuleExports: build_exports
+                                   });
+    mod_loader.runScript({contents: file.read(path), filename: path});
+}
+
 function Project() {
     var self = {}
       , load_script
@@ -52,7 +77,9 @@ function Project() {
               , filters: []
               }
             , function (path) {
-                console.log(path);
+                if (path) {
+                    load_build_script(path);
+                }
               }
             )
     };
