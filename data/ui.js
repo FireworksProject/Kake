@@ -9,7 +9,8 @@
  */
 
 /*jslint
-  laxbreak: true
+  evil: true
+, laxbreak: true
 , onevar: true
 , undef: true
 , nomen: true
@@ -19,8 +20,12 @@
 , regexp: true
 , newcap: true
 , immed: true
-, strict: true
+, strict: false
 */
+
+// * jslint evil is set to true because we need to use the Function constructor.
+// * jslint strict is false because we use it within the function;
+//   not the whole script.
 
 /*global
   window: false
@@ -28,39 +33,57 @@
 , exports: true
 , console: false
 , postMessage: false
+, onMessage: true
 */
 
-(function (global, window, postMessage) {
+(function (window, postMessage) {
     'use strict';
 
-    var document = window.document
-
-      , loc = window.location.href
-
-      , jq = window.jQuery
-
-      // WARNING! This technique is not stable and could go bad any time.
-      , lib_dir = loc.replace(/data\/kake\.html$/, 'lib/')
-
+    var jq = window.jQuery
       , send
+
       , mailbox_handlers = {}
+      , mailbox_decorator
       ;
+
+    // Implements our messaging protocol with the main build engine.
+    mailbox_decorator = {
+          receive: function (fn) {
+              // Decodes the message
+              return function (data) {
+                  // id = the project id (file path)
+                  // message = the message header (descriptive)
+                  // data = anything
+                  fn(data.id, data.message, data.data);
+              };
+          }
+        , send: function (fn, cls) {
+              // Encodes the message
+              return function (method, id, message, data) {
+                  fn(cls, method, {id: id, message: message, data: data});
+              };
+          }
+    };
 
     mailbox_handlers.project = (function () {
         var self = {}
+          //, projects = {}
           ;
 
-        self.load_result = function load_result(result) {
-            console.log(result);
-        }
+        self.load_result = function load_result(id, data) {
+        };
+
+        self.load_result = mailbox_decorator.receive(function (id, msg, data) {
+            console.log('load_result:', id, msg, JSON.stringify(data));
+        });
 
         return self;
     }());
 
     function hookup_DOM() {
         jq('#load-project')
-            .click(function (ev) {
-                send('project', 'load');
+            .click(function () {
+                mailbox_decorator.send(send, 'project')('load');
             })
             ;
     }
@@ -83,5 +106,5 @@
         hookup_DOM();
     };
 
-}(this, window, postMessage));
+}(window, postMessage));
 

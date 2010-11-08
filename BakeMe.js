@@ -18,8 +18,7 @@ var kake = require('kake')
   , SRC = DIR.join('src')
   , LIB_DIR = DIR.join('lib')
   , DATA_DIR = DIR.join('data')
-  //, DIST = PROJECT.join('moz-ext')
-  //, TEMP = PROJECT.join('temp')
+  , TEMP = PROJECT.join('temp')
   //, LICENSE_TPL = SOURCE.join('MIT-LICENSE.template')
   //, LICENSE_LOCATIONS = []
   //, SHARED = PROJECT.join('shared')
@@ -92,11 +91,11 @@ settings( 'Fireworks.js version'
     return p.when;
 } */
 
-/*
 task('staged_dir', function () {
-    STAGED.rm().dir();
+    TEMP.rm().mdir();
 });
 
+/*
 task('licensing', function (t) {
     var last = stash.get('license.last_update') || 0
       , current = LICENSE_TPL.mtime().getTime()
