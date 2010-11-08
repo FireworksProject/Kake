@@ -3,13 +3,30 @@
 <head>
 <title>Kake</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link rel="stylesheet" media="all" href=""/>
-<script type="text/javascript" src=""></script>
+<link rel="stylesheet" media="all" href="./css/ui-darkness/jquery-ui-1.8.6.custom.css"/>
+<script type="text/javascript" src="./js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="./js/jquery-ui-1.8.6.custom.min.js"></script>
 </head><body>
 <div id="header">
 	<div id="branding">
 		<h1 class="branding">kake</h1>
 	</div><!-- end #branding -->
-	<div><button id="test">Testme</button></div>
 </div><!-- end #header -->
+<div id="workspace">
+	<div id="start">
+		<p><button id="load-project">Load a Project</button></p>
+	</div>
+	<div id="project">
+		<div id="project-ui">
+			<div>
+				<h3>Settings</h3>
+				<div id="settings"></div>
+			</div>
+			<div>
+				<h3>Tasks</h3>
+				<div id="tasks"></div>
+			</div>
+		</div>
+	</div>
+</div>
 </body></html>

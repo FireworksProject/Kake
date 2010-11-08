@@ -30,12 +30,14 @@
 , postMessage: false
 */
 
-(function (window, postMessage) {
+(function (global, window, postMessage) {
     'use strict';
 
     var document = window.document
 
       , loc = window.location.href
+
+      , jq = window.jQuery
 
       // WARNING! This technique is not stable and could go bad any time.
       , lib_dir = loc.replace(/data\/kake\.html$/, 'lib/')
@@ -44,22 +46,42 @@
       , mailbox_handlers = {}
       ;
 
-    function inject_script(url, callback) {
-        var script = document.createElement('script');
-        script.src = url;
-        script.onload = callback;
-        document.documentElement.appendChild(script);
+    mailbox_handlers.project = (function () {
+        var self = {}
+          ;
+
+        self.load_result = function load_result(result) {
+            console.log(result);
+        }
+
+        return self;
+    }());
+
+    function hookup_DOM() {
+        jq('#load-project')
+            .click(function (ev) {
+                send('project', 'load');
+            })
+            ;
     }
 
-    inject_script(lib_dir +'future/mailbox.js', function () {
-        var mailbox = window['/future/mailbox']
-                          .Mailbox({ classes: mailbox_handlers
-                                   , sender: postMessage
-                                   });
+    onMessage = function (script) {
+        var mod = {}
+          , factory = new Function('exports', script)
+          , mailbox
+          ;
+
+        factory(mod);
+
+        mailbox = mod.Mailbox({ classes: mailbox_handlers
+                              , sender: postMessage
+                              });
 
         onMessage = mailbox.receive;
         send = mailbox.send;
-        console.log('loaded');
-    });
-}(window, postMessage));
+
+        hookup_DOM();
+    };
+
+}(this, window, postMessage));
 
