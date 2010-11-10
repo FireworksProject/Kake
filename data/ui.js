@@ -41,43 +41,100 @@
 
     var jq = window.jQuery
 
-      , mailbox_decorator
+      , projects = {}
 
       // (type_path, id, message, data)
       , send
 
       // (type_path, callback(id, message, data))
       , observe
+
+      // Implements our messaging protocol with the main build engine.
+      , mailbox_decorator = {
+              observe: function (fn) {
+                  // Decodes the message
+                  return function (data) {
+                      // id = the project id (file path)
+                      // message = the message header (descriptive)
+                      // data = anything
+                      fn(data.id, data.message, data.data);
+                  };
+              }
+            , send: function (fn) {
+                  // Encodes the message
+                  return function (type, id, message, data) {
+                      fn(type, {id: id, message: message, data: data});
+                  };
+              }
+        }
       ;
 
-    // Implements our messaging protocol with the main build engine.
-    mailbox_decorator = {
-          observe: function (fn) {
-              // Decodes the message
-              return function (data) {
-                  // id = the project id (file path)
-                  // message = the message header (descriptive)
-                  // data = anything
-                  fn(data.id, data.message, data.data);
-              };
-          }
-        , send: function (fn) {
-              // Encodes the message
-              return function (type, id, message, data) {
-                  fn(type, {id: id, message: message, data: data});
-              };
-          }
-    };
+    function show_error(title, error) {
+        jq('#error-string').html(error.message);
+        jq('#error-line').html(error.lineNumber);
+        jq('#error-file').html(error.fileName);
+        jq('#error-stack').html(error.stack);
+        jq('#error-dialog')
+            .dialog({ title: title
+                    , width: jq(window).width() / 2
+                    });
+    }
+
+    function Project() {
+        var self = {}
+          ;
+
+        // data.name
+        // data.value
+        function render_settings(data) {
+            console.log('render_settings', JSON.stringify(data));
+            data = Array.isArray(data) ? data : [data];
+            jq.tmpl('setting', data).appendTo('#settings');
+        }
+
+        // data = [task1, task1, ...]
+        // task.name
+        // task.description
+        // task.deps
+        function render_tasks(data) {
+            jq.tmpl('task', data).appendTo('#tasks');
+        }
+
+        function render_project(data) {
+            var settings = Object.keys(data.settings).map(function (name) {
+                               return {name: name, value: data.settings[name]};
+                           });
+            render_settings(settings);
+            render_tasks(data.tasks);
+            jq('#start').hide();
+            jq('#project').show();
+        }
+
+        self.render = render_project;
+        return self;
+    }
 
     function init() {
-        observe('project.load', function (id, msg, data) {
-            console.log('ui:project.load ->', id, msg, JSON.stringify(data));
-        });
-
         jq('#load-project')
             .click(function () {
                 send('project.load', null, 'load');
             });
+
+        observe('project.load', function (id, msg, data) {
+            console.log('ui:project.load ->', id, msg, JSON.stringify(data));
+
+            if (msg === 'OK') {
+                projects[id] = Project();
+                projects[id].render(data);
+            }
+            else if (msg === 'error') {
+                show_error('Build script error', data);
+            }
+            else {
+                console.warn('Unexpected mailbox message to project.load:');
+                console.debug(id, msg, data);
+            }
+        });
     }
 
     // INIT -- nothing happens until this handler is called.

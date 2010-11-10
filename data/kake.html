@@ -6,7 +6,19 @@
 <link rel="stylesheet" media="all" href="./css/ui-darkness/jquery-ui-1.8.6.custom.css"/>
 <script type="text/javascript" src="./js/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="./js/jquery-ui-1.8.6.custom.min.js"></script>
+<script type="text/javascript" src="./js/jquery.tmpl.beta1.js"></script>
 </head><body>
+
+<div id="error-dialog">
+	<p id="error-string"></p>
+	<p>line: <em id="error-line"></em></p>
+	<p>file: <em id="error-file"></em></p>
+	<pre><code id="error-stack"></code></pre>
+</div>
+<script type="text/javascript">//<![CDATA[
+	jQuery('#error-dialog').hide();
+//]]></script>
+
 <div id="header">
 	<div id="branding">
 		<h1 class="branding">kake</h1>
@@ -20,13 +32,37 @@
 		<div id="project-ui">
 			<div>
 				<h3>Settings</h3>
-				<div id="settings"></div>
+				<div id="settings-box"><ul id="settings"></ul></div>
+				<script id="setting-template" type="text/x-jquery-template">
+					<li class="settings">
+					${name} : ${value}
+					</li>
+				</script>
 			</div>
 			<div>
 				<h3>Tasks</h3>
-				<div id="tasks"></div>
+				<div id="tasks-box"><ul id="tasks"></ul></div>
+				<script id="task-template" type="text/x-jquery-template">
+					<li class="tasks">
+					<p class="task-name">${name}</p>
+					<p class="task-description">${description}</p>
+					<h4 class="task-deps">Dependencies:</h4>
+					<ul class="task-deps">
+				  {{each deps}}
+						<li class="task-deps">${value.name}</li>
+					{{/each}}
+					</ul>
+					</li>
+				</script>
+				<script type="text/javascript">//<![CDATA[
+					jQuery('#setting-template').template('setting');
+					jQuery('#task-template').template('task');
+				//]]></script>
 			</div>
 		</div>
-	</div>
-</div>
+	</div><!-- end #project -->
+	<script type="text/javascript">//<![CDATA[
+		jQuery('#project').hide();
+	//]]></script>
+</div><!-- end #workspace -->
 </body></html>
