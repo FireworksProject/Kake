@@ -40,15 +40,19 @@
     'use strict';
 
     var jq = window.jQuery
+
+      , mailbox_decorator
+
+      // (type_path, id, message, data)
       , send
 
-      , mailbox_handlers = {}
-      , mailbox_decorator
+      // (type_path, callback(id, message, data))
+      , observe
       ;
 
     // Implements our messaging protocol with the main build engine.
     mailbox_decorator = {
-          receive: function (fn) {
+          observe: function (fn) {
               // Decodes the message
               return function (data) {
                   // id = the project id (file path)
@@ -57,53 +61,49 @@
                   fn(data.id, data.message, data.data);
               };
           }
-        , send: function (fn, cls) {
+        , send: function (fn) {
               // Encodes the message
-              return function (method, id, message, data) {
-                  fn(cls, method, {id: id, message: message, data: data});
+              return function (type, id, message, data) {
+                  fn(type, {id: id, message: message, data: data});
               };
           }
     };
 
-    mailbox_handlers.project = (function () {
-        var self = {}
-          //, projects = {}
-          ;
-
-        self.load_result = function load_result(id, data) {
-        };
-
-        self.load_result = mailbox_decorator.receive(function (id, msg, data) {
-            console.log('load_result:', id, msg, JSON.stringify(data));
+    function init() {
+        observe('project.load', function (id, msg, data) {
+            console.log('ui:project.load ->', id, msg, data);
         });
 
-        return self;
-    }());
-
-    function hookup_DOM() {
         jq('#load-project')
             .click(function () {
-                mailbox_decorator.send(send, 'project')('load');
-            })
-            ;
+                send('project.load', null, 'load');
+            });
     }
 
+    // INIT -- nothing happens until this handler is called.
+    // Listen for the injected Mailbox.js script and then
+    // reassign this handler.
     onMessage = function (script) {
         var mod = {}
           , factory = new Function('exports', script)
           , mailbox
           ;
 
+        // Execute the injected script.
         factory(mod);
 
-        mailbox = mod.Mailbox({ classes: mailbox_handlers
-                              , sender: postMessage
-                              });
+        mailbox = mod.Mailbox({sender: postMessage});
 
+        // reassign the onMessage handler.
         onMessage = mailbox.receive;
-        send = mailbox.send;
 
-        hookup_DOM();
+        // scope handlers.
+        send = mailbox_decorator.send(mailbox.send);
+        observe = function (type_path, fn) {
+            mailbox.observe(type_path, mailbox_decorator.observe(fn));
+        };
+
+        init();
     };
 
 }(window, postMessage));

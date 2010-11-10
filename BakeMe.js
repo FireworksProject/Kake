@@ -1,6 +1,6 @@
 var kake = require('kake')
   , console = kake.console
-  //, task = kake.task
+  , task = kake.task
   , settings = kake.settings
   //, promises = require('fireworks/promises/full')
   //, iter = require('fireworks/iter')
@@ -92,7 +92,7 @@ settings( 'Fireworks.js version'
 } */
 
 task('staged_dir', function () {
-    TEMP.rm().mdir();
+    TEMP.rm().mkpath();
 });
 
 /*
