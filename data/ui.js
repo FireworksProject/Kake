@@ -71,7 +71,7 @@
 
     function init() {
         observe('project.load', function (id, msg, data) {
-            console.log('ui:project.load ->', id, msg, data);
+            console.log('ui:project.load ->', id, msg, JSON.stringify(data));
         });
 
         jq('#load-project')

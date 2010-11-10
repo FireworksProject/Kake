@@ -18,7 +18,7 @@ var kake = require('kake')
   , SRC = DIR.join('src')
   , LIB_DIR = DIR.join('lib')
   , DATA_DIR = DIR.join('data')
-  , TEMP = PROJECT.join('temp')
+  , TEMP = DIR.join('temp')
   //, LICENSE_TPL = SOURCE.join('MIT-LICENSE.template')
   //, LICENSE_LOCATIONS = []
   //, SHARED = PROJECT.join('shared')
@@ -91,9 +91,15 @@ settings( 'Fireworks.js version'
     return p.when;
 } */
 
-task('staged_dir', function () {
-    TEMP.rm().mkpath();
-});
+
+task(
+  { name: 'temp dir'
+  , description: 'Create the temporary build dir.'
+  }
+, function () {
+      TEMP.rm().mkpath();
+  }
+);
 
 /*
 task('licensing', function (t) {
