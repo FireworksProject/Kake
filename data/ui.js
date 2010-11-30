@@ -80,14 +80,13 @@
                     });
     }
 
-    function Project() {
+    function Project(id) {
         var self = {}
           ;
 
         // data.name
         // data.value
         function render_settings(data) {
-            console.log('render_settings', JSON.stringify(data));
             data = Array.isArray(data) ? data : [data];
             jq.tmpl('setting', data).appendTo('#settings');
         }
@@ -100,6 +99,34 @@
             jq.tmpl('task', data).appendTo('#tasks');
         }
 
+        function run_project() {
+            jq('#build-project').unbind('click', run_project);
+
+            var data = {tasks: [], settings: {}};
+
+            jq('li.settings').each(function (i, el) {
+                var name = jq('span.setting-name', el).html()
+                  , value = jq('span.setting-value', el).html()
+                  ;
+
+                data.settings[name] = value;
+            });
+
+            jq('li.tasks.run').each(function (i, el) {
+                data.tasks.push(jq('p.task-name', el).html());
+            });
+
+            send('project.runner', id, 'run', data);
+        }
+
+        function teardown() {
+            jq('#reload-project').unbind('click', teardown);
+            jq('#build-project').unbind('click', run_project);
+            jq('#tasks').empty();
+            jq('#settings').empty();
+            send('project.load', id, 'reload');
+        }
+
         function render_project(data) {
             var settings = Object.keys(data.settings).map(function (name) {
                                return {name: name, value: data.settings[name]};
@@ -107,6 +134,8 @@
             render_settings(settings);
             render_tasks(data.tasks);
             jq('#start').hide();
+            jq('#build-project').click(run_project);
+            jq('#reload-project').click(teardown);
             jq('#project').show();
         }
 
@@ -114,24 +143,53 @@
         return self;
     }
 
+    function load_project() {
+        jq('#load-project').unbind('click', load_project);
+        send('project.load', null, 'load');
+    }
+
     function init() {
-        jq('#load-project')
-            .click(function () {
-                send('project.load', null, 'load');
-            });
+        // Build and cache the templates.
+        jQuery('#setting-template').template('setting');
+        jQuery('#task-template').template('task');
+
+        // Attach handlers.
+        jq('#load-project').click(load_project);
 
         observe('project.load', function (id, msg, data) {
             console.log('ui:project.load ->', id, msg, JSON.stringify(data));
 
             if (msg === 'OK') {
-                projects[id] = Project();
+                projects[id] = Project(id);
                 projects[id].render(data);
+                return;
             }
-            else if (msg === 'error') {
+            if (msg === 'error') {
                 show_error('Build script error', data);
             }
             else {
                 console.warn('Unexpected mailbox message to project.load:');
+                console.debug(id, msg, data);
+            }
+            jq('#load-project').click(load_project);
+        });
+
+        observe('project.runner', function (id, msg, data) {
+            if (msg === 'done') {
+                jq('#project-dialog-message')
+                    .html('Project '+ id +' build complete.');
+
+                jq('#project-dialog')
+                    .dialog({ title: 'Project Complete'
+                            , width: jq(window).width() / 2
+                            });
+                return;
+            }
+            else if (msg === 'error') {
+                show_error('Build script run error', data);
+            }
+            else {
+                console.warn('Unexpected mailbox message to project.runner:');
                 console.debug(id, msg, data);
             }
         });

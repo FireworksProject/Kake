@@ -19,6 +19,13 @@
 	jQuery('#error-dialog').hide();
 //]]></script>
 
+<div id="project-dialog">
+	<p id="project-dialog-message"></p>
+</div>
+<script type="text/javascript">//<![CDATA[
+	jQuery('#project-dialog').hide();
+//]]></script>
+
 <div id="header">
 	<div id="branding">
 		<h1 class="branding">kake</h1>
@@ -30,12 +37,18 @@
 	</div>
 	<div id="project">
 		<div id="project-ui">
+			<div id="start">
+				<p>
+					<button id="build-project">Build</button>
+					<button id="reload-project">Reload</button>
+				</p>
+			</div>
 			<div>
 				<h3>Settings</h3>
 				<div id="settings-box"><ul id="settings"></ul></div>
 				<script id="setting-template" type="text/x-jquery-template">
 					<li class="settings">
-					${name} : ${value}
+					<span class="setting-name">${name}</span> : <span class="setting-value">${value}</span>
 					</li>
 				</script>
 			</div>
@@ -43,21 +56,17 @@
 				<h3>Tasks</h3>
 				<div id="tasks-box"><ul id="tasks"></ul></div>
 				<script id="task-template" type="text/x-jquery-template">
-					<li class="tasks">
-					<p class="task-name">${name}</p>
-					<p class="task-description">${description}</p>
-					<h4 class="task-deps">Dependencies:</h4>
-					<ul class="task-deps">
-				  {{each deps}}
-						<li class="task-deps">${value.name}</li>
-					{{/each}}
-					</ul>
+					<li class="tasks run">
+						<p class="task-name">${name}</p>
+						<p class="task-description">${description}</p>
+						<h4 class="task-deps">Dependencies:</h4>
+						<ul class="task-deps">
+						{{each deps}}
+							<li class="task-deps">${value.name}</li>
+						{{/each}}
+						</ul>
 					</li>
 				</script>
-				<script type="text/javascript">//<![CDATA[
-					jQuery('#setting-template').template('setting');
-					jQuery('#task-template').template('task');
-				//]]></script>
 			</div>
 		</div>
 	</div><!-- end #project -->
