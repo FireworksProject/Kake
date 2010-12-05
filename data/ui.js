@@ -77,6 +77,10 @@
         jq('#error-dialog')
             .dialog({ title: title
                     , width: jq(window).width() / 2
+                    , buttons: [{
+                        text: 'Ok'
+                      , click: function () { jq(this).dialog('close'); }
+                      }]
                     });
     }
 
@@ -100,7 +104,10 @@
         }
 
         function run_project() {
-            jq('#build-project').unbind('click', run_project);
+            jq('#build-project')
+                .unbind('click', run_project)
+                .button('disable')
+                ;
 
             var data = {tasks: [], settings: {}};
 
@@ -120,10 +127,31 @@
         }
 
         function teardown() {
-            jq('#reload-project').unbind('click', teardown);
-            jq('#build-project').unbind('click', run_project);
+            jq('#reload-project')
+                .unbind('click', reload_project)
+                .button('disable')
+                ;
+            jq('#build-project')
+                .unbind('click', run_project)
+                .button('disable')
+                ;
             jq('#tasks').empty();
             jq('#settings').empty();
+        }
+
+        function setup() {
+            jq('#build-project')
+                .click(run_project)
+                .button('enable')
+                ;
+            jq('#reload-project')
+                .click(reload_project)
+                .button('enable')
+                ;
+        }
+
+        function reload_project() {
+            teardown();
             send('project.load', id, 'reload');
         }
 
@@ -134,8 +162,7 @@
             render_settings(settings);
             render_tasks(data.tasks);
             jq('#start').hide();
-            jq('#build-project').click(run_project);
-            jq('#reload-project').click(teardown);
+            setup();
             jq('#project').show();
         }
 
@@ -149,16 +176,7 @@
     }
 
     function init() {
-        // Build and cache the templates.
-        jQuery('#setting-template').template('setting');
-        jQuery('#task-template').template('task');
-
-        // Attach handlers.
-        jq('#load-project').click(load_project);
-
         observe('project.load', function (id, msg, data) {
-            console.log('ui:project.load ->', id, msg, JSON.stringify(data));
-
             if (msg === 'OK') {
                 projects[id] = Project(id);
                 projects[id].render(data);

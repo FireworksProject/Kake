@@ -15,16 +15,10 @@
 	<p>file: <em id="error-file"></em></p>
 	<pre><code id="error-stack"></code></pre>
 </div>
-<script type="text/javascript">//<![CDATA[
-	jQuery('#error-dialog').hide();
-//]]></script>
 
 <div id="project-dialog">
 	<p id="project-dialog-message"></p>
 </div>
-<script type="text/javascript">//<![CDATA[
-	jQuery('#project-dialog').hide();
-//]]></script>
 
 <div id="header">
 	<div id="branding">
@@ -70,8 +64,38 @@
 			</div>
 		</div>
 	</div><!-- end #project -->
-	<script type="text/javascript">//<![CDATA[
-		jQuery('#project').hide();
-	//]]></script>
 </div><!-- end #workspace -->
+
+<div id="messenger"></div>
+
+<script type="text/javascript">//<![CDATA[
+(function (window) {
+	var jq = window.jQuery
+	  , ui_rpc_methods = {}
+	  ;
+
+	jq('#error-dialog').hide();
+	jq('#project-dialog').hide();
+	jq('#project').hide();
+
+	// Build and cache the templates.
+	jq('#setting-template').template('setting');
+	jq('#task-template').template('task');
+
+	// Create jQuery UI buttons and attach handlers.
+	jq('#load-project').button().click(load_project);
+	jq('#build-project').button({disabled: true});
+	jq('#reload-project').button({disabled: true});
+
+	jq('#messenger')
+		.hide()
+		.bind('Kake-UI-RPC', function () {
+			var msg = JSON.parse(jq(this).attr('data'));
+
+			ui_rpc_methods[msg.method].apply({}, msg.params);
+		})
+		;
+
+}(window));
+//]]></script>
 </body></html>
