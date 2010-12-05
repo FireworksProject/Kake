@@ -9,7 +9,7 @@ var kake = require('kake')
   , path = kake.path
 
   //, iter = kake.iter
-  //, stash = kake.stash
+  , stash = kake.stash
   //, print = kake.print
   //, print_err = kake.print_err
   //, template = kake.template
@@ -19,7 +19,7 @@ var kake = require('kake')
   , LIB_DIR = DIR.join('lib')
   , DATA_DIR = DIR.join('data')
   , TEMP = DIR.join('temp')
-  //, LICENSE_TPL = SOURCE.join('MIT-LICENSE.template')
+  , LICENSE_TPL = SRC.join('MIT-LICENSE.tpl')
   //, LICENSE_LOCATIONS = []
   //, SHARED = PROJECT.join('shared')
   //, FIREWORKS_SRC = SHARED.join('fireworks')
@@ -101,8 +101,14 @@ task(
   }
 );
 
-/*
-task('licensing', function (t) {
+throw new Error('testing');
+
+task(
+  { name: 'licensing'
+  , description: 'Create the licenses from templates if the template is new, '+
+                 'or this is the first build of a new year.'
+  }
+, function (t) {
     var last = stash.get('license.last_update') || 0
       , current = LICENSE_TPL.mtime().getTime()
       , today
@@ -110,11 +116,11 @@ task('licensing', function (t) {
       ;
 
     if (last > current) {
-        t.done();
         return;
     }
 
     today = new Date();
+    /*
     text = template(LICENSE_TPL, {DATE: today.getFullYear()});
 
     write_promises = iter(LICENSE_LOCATIONS).map(function (path) {
@@ -130,9 +136,11 @@ task('licensing', function (t) {
     promises.join(write_promises)
         (when_fulfilled, report_errors, t.done)
         ;
+        */
 
     stash.set('license.last_update', today.getTime());
 });
+/*
 
 task('update_shared', function (t) {
     var jquery, fireworks;
