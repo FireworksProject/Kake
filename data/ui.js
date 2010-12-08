@@ -36,7 +36,7 @@
 , onMessage: true
 */
 
-(function (window, postMessage) {
+(function (document, postMessage) {
     'use strict';
 
     var jq = window.jQuery
@@ -48,25 +48,6 @@
 
       // (type_path, callback(id, message, data))
       , observe
-
-      // Implements our messaging protocol with the main build engine.
-      , mailbox_decorator = {
-              observe: function (fn) {
-                  // Decodes the message
-                  return function (data) {
-                      // id = the project id (file path)
-                      // message = the message header (descriptive)
-                      // data = anything
-                      fn(data.id, data.message, data.data);
-                  };
-              }
-            , send: function (fn) {
-                  // Encodes the message
-                  return function (type, id, message, data) {
-                      fn(type, {id: id, message: message, data: data});
-                  };
-              }
-        }
       ;
 
     function show_error(title, error) {
@@ -213,6 +194,7 @@
         });
     }
 
+    /*
     // INIT -- nothing happens until this handler is called.
     // Listen for the injected Mailbox.js script and then
     // reassign this handler.
@@ -238,6 +220,23 @@
 
         init();
     };
+    */
 
-}(window, postMessage));
+    var messenger_out = document.getElementById('messenger-out')
+      , messenger_in = document.getElementById('messenger-in')
+      ;
+
+    onMessage = function (msg) {
+        var ev = document.createEvent('Events');
+
+        messenger_in.textContent = JSON.stringify(msg);
+        ev.initEvent('messenger.onMessage', true, false);
+        messenger_in.dispatchEvent(ev);
+    };
+
+    messenger_out.addEventListener('messenger.onMessage', function (ev) {
+        postMessage(JSON.parse(ev.target.textContent));
+    }, false, true);
+
+}(window.document, postMessage));
 

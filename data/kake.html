@@ -10,92 +10,148 @@
 </head><body>
 
 <div id="error-dialog">
-	<p id="error-string"></p>
-	<p>line: <em id="error-line"></em></p>
-	<p>file: <em id="error-file"></em></p>
-	<pre><code id="error-stack"></code></pre>
+  <p id="error-string"></p>
+  <p>line: <em id="error-line"></em></p>
+  <p>file: <em id="error-file"></em></p>
+  <pre><code id="error-stack"></code></pre>
 </div>
 
 <div id="project-dialog">
-	<p id="project-dialog-message"></p>
+  <p id="project-dialog-message"></p>
 </div>
 
 <div id="header">
-	<div id="branding">
-		<h1 class="branding">kake</h1>
-	</div><!-- end #branding -->
+  <div id="branding">
+    <h1 class="branding">kake</h1>
+  </div><!-- end #branding -->
 </div><!-- end #header -->
 <div id="workspace">
-	<div id="start">
-		<p><button id="load-project">Load a Project</button></p>
-	</div>
-	<div id="project">
-		<div id="project-ui">
-			<div id="start">
-				<p>
-					<button id="build-project">Build</button>
-					<button id="reload-project">Reload</button>
-				</p>
-			</div>
-			<div>
-				<h3>Settings</h3>
-				<div id="settings-box"><ul id="settings"></ul></div>
-				<script id="setting-template" type="text/x-jquery-template">
-					<li class="settings">
-					<span class="setting-name">${name}</span> : <span class="setting-value">${value}</span>
-					</li>
-				</script>
-			</div>
-			<div>
-				<h3>Tasks</h3>
-				<div id="tasks-box"><ul id="tasks"></ul></div>
-				<script id="task-template" type="text/x-jquery-template">
-					<li class="tasks run">
-						<p class="task-name">${name}</p>
-						<p class="task-description">${description}</p>
-						<h4 class="task-deps">Dependencies:</h4>
-						<ul class="task-deps">
-						{{each deps}}
-							<li class="task-deps">${value.name}</li>
-						{{/each}}
-						</ul>
-					</li>
-				</script>
-			</div>
-		</div>
-	</div><!-- end #project -->
+  <div id="start">
+    <p><button id="load-project">Load a Project</button></p>
+  </div>
+  <div id="project">
+    <div id="project-ui">
+      <div id="start">
+        <p>
+          <button id="build-project">Build</button>
+          <button id="reload-project">Reload</button>
+        </p>
+      </div>
+      <div>
+        <h3>Settings</h3>
+        <div id="settings-box"><ul id="settings"></ul></div>
+        <script id="setting-template" type="text/x-jquery-template">
+          <li class="settings">
+          <span class="setting-name">${name}</span> : <span class="setting-value">${value}</span>
+          </li>
+        </script>
+      </div>
+      <div>
+        <h3>Tasks</h3>
+        <div id="tasks-box"><ul id="tasks"></ul></div>
+        <script id="task-template" type="text/x-jquery-template">
+          <li class="tasks run">
+            <p class="task-name">${name}</p>
+            <p class="task-description">${description}</p>
+            <h4 class="task-deps">Dependencies:</h4>
+            <ul class="task-deps">
+            {{each deps}}
+              <li class="task-deps">${value.name}</li>
+            {{/each}}
+            </ul>
+          </li>
+        </script>
+      </div>
+    </div>
+  </div><!-- end #project -->
 </div><!-- end #workspace -->
 
-<div id="messenger"></div>
+<script id="messenger-out" type="text/html"></script>
+<script id="messenger-in" type="text/html"></script>
 
 <script type="text/javascript">//<![CDATA[
+console.debug('start kake.html');
 (function (window) {
-	var jq = window.jQuery
-	  , ui_rpc_methods = {}
-	  ;
+var document = window.document
+  , loc = window.location
+  , jq = window.jQuery
 
-	jq('#error-dialog').hide();
-	jq('#project-dialog').hide();
-	jq('#project').hide();
+  , send
+  , observe
 
-	// Build and cache the templates.
-	jq('#setting-template').template('setting');
-	jq('#task-template').template('task');
+  , init_messenger = function (mailbox, mailbox_decorator) {
+      var messenger_out = document.getElementById('messenger-out')
+        , messenger_in = document.getElementById('messenger-in')
+        ;
 
-	// Create jQuery UI buttons and attach handlers.
-	jq('#load-project').button().click(load_project);
-	jq('#build-project').button({disabled: true});
-	jq('#reload-project').button({disabled: true});
+      function post_message(msg) {
+        var ev = document.createEvent('Events');
+        messenger_out.textContent = JSON.stringify(msg);
+        ev.initEvent('messenger.onMessage', true, false);
+        messenger_out.dispatchEvent(ev);
+      }
 
-	jq('#messenger')
-		.hide()
-		.bind('Kake-UI-RPC', function () {
-			var msg = JSON.parse(jq(this).attr('data'));
+      messenger_in.addEventListener('messenger.onMessage', function (ev) {
+        mailbox.receive(JSON.parse(ev.target.textContent));
+      }, false);
 
-			ui_rpc_methods[msg.method].apply({}, msg.params);
-		})
-		;
+      mailbox.make_Mailbox({sender: post_message});
+      send = mailbox_decorator.send(mailbox.send);
+      observe = function (type_path) {
+        mailbox.observe(type_path, mailbox_decorator.observe(fn));
+      };
+      console.debug('messenger initialized');
+    }
 
+  , maybe_load_messenger = (function () {
+      var memo = {};
+      return function (mailbox, decorator) {
+        if (mailbox) {
+          memo.mailbox = mailbox;
+        }
+        if (decorator) {
+          memo.decorator = decorator;
+        }
+
+        if (memo.mailbox && memo.decorator) {
+          init_messenger(memo.mailbox, memo.decorator.mailbox_decorator);
+        }
+      };
+    }())
+  ;
+
+  function get_lib_url(path) {
+    // TODO: This is hackish and fragile.
+    return 'resource://'+ loc.host.replace(/data$/, 'lib') + path;
+  }
+
+  function inject_script(url, callback) {
+    var script = document.createElement('script');
+    script.src = url;
+    script.onload = callback;
+    document.documentElement.appendChild(script);
+  }
+
+  jq('#error-dialog').hide();
+  jq('#project-dialog').hide();
+  jq('#project').hide();
+
+  // Create jQuery UI buttons and attach handlers.
+  jq('#load-project').button().click(load_project);
+  jq('#build-project').button({disabled: true});
+  jq('#reload-project').button({disabled: true});
+
+  inject_script(get_lib_url('/future/mailbox.js'), function () {
+    maybe_load_messenger(window['/future/mailbox']);
+  });
+
+  inject_script(get_lib_url('/build-kit/mailbox-decorator.js'), function () {
+    maybe_load_messenger(null, window['/build-kit/mailbox-decorator']);
+  });
+
+  // Build and cache the templates.
+  jq('#setting-template').template('setting');
+  jq('#task-template').template('task');
 }(window));
 //]]></script>
 </body></html>
