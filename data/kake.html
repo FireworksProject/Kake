@@ -4,9 +4,6 @@
 <title>Kake</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" media="all" href="./css/ui-darkness/jquery-ui-1.8.6.custom.css"/>
-<script type="text/javascript" src="./js/jquery-1.4.2.min.js"></script>
-<script type="text/javascript" src="./js/jquery-ui-1.8.6.custom.min.js"></script>
-<script type="text/javascript" src="./js/jquery.tmpl.beta1.js"></script>
 </head><body>
 
 <div id="error-dialog">
@@ -66,92 +63,15 @@
   </div><!-- end #project -->
 </div><!-- end #workspace -->
 
+<!-- special messenging element for outbound messages-->
 <script id="messenger-out" type="text/html"></script>
+
+<!-- special messenging element for inbound messages-->
 <script id="messenger-in" type="text/html"></script>
 
-<script type="text/javascript">//<![CDATA[
-console.debug('start kake.html');
-(function (window) {
-var document = window.document
-  , loc = window.location
-  , jq = window.jQuery
-
-  , send
-  , observe
-
-  , init_messenger = function (mailbox, mailbox_decorator) {
-      var messenger_out = document.getElementById('messenger-out')
-        , messenger_in = document.getElementById('messenger-in')
-        ;
-
-      function post_message(msg) {
-        var ev = document.createEvent('Events');
-        messenger_out.textContent = JSON.stringify(msg);
-        ev.initEvent('messenger.onMessage', true, false);
-        messenger_out.dispatchEvent(ev);
-      }
-
-      messenger_in.addEventListener('messenger.onMessage', function (ev) {
-        mailbox.receive(JSON.parse(ev.target.textContent));
-      }, false);
-
-      mailbox.make_Mailbox({sender: post_message});
-      send = mailbox_decorator.send(mailbox.send);
-      observe = function (type_path) {
-        mailbox.observe(type_path, mailbox_decorator.observe(fn));
-      };
-      console.debug('messenger initialized');
-    }
-
-  , maybe_load_messenger = (function () {
-      var memo = {};
-      return function (mailbox, decorator) {
-        if (mailbox) {
-          memo.mailbox = mailbox;
-        }
-        if (decorator) {
-          memo.decorator = decorator;
-        }
-
-        if (memo.mailbox && memo.decorator) {
-          init_messenger(memo.mailbox, memo.decorator.mailbox_decorator);
-        }
-      };
-    }())
-  ;
-
-  function get_lib_url(path) {
-    // TODO: This is hackish and fragile.
-    return 'resource://'+ loc.host.replace(/data$/, 'lib') + path;
-  }
-
-  function inject_script(url, callback) {
-    var script = document.createElement('script');
-    script.src = url;
-    script.onload = callback;
-    document.documentElement.appendChild(script);
-  }
-
-  jq('#error-dialog').hide();
-  jq('#project-dialog').hide();
-  jq('#project').hide();
-
-  // Create jQuery UI buttons and attach handlers.
-  jq('#load-project').button().click(load_project);
-  jq('#build-project').button({disabled: true});
-  jq('#reload-project').button({disabled: true});
-
-  inject_script(get_lib_url('/future/mailbox.js'), function () {
-    maybe_load_messenger(window['/future/mailbox']);
-  });
-
-  inject_script(get_lib_url('/build-kit/mailbox-decorator.js'), function () {
-    maybe_load_messenger(null, window['/build-kit/mailbox-decorator']);
-  });
-
-  // Build and cache the templates.
-  jq('#setting-template').template('setting');
-  jq('#task-template').template('task');
-}(window));
-//]]></script>
+<script type="text/javascript" src="./js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="./js/jquery-ui-1.8.6.custom.min.js"></script>
+<script type="text/javascript" src="./js/jquery.tmpl.beta1.js"></script>
+<script type="text/javascript" src="./js/es5-shim.js"></script>
+<script type="text/javascript" src="./js/kake.js"></script>
 </body></html>
