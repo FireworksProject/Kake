@@ -93,15 +93,13 @@ settings( 'Fireworks.js version'
 
 
 task(
-  { name: 'temp dir'
+  { name: 'temp directory'
   , description: 'Create the temporary build dir.'
   }
 , function () {
       TEMP.rm().mkpath();
   }
 );
-
-throw new Error('testing');
 
 task(
   { name: 'licensing'
@@ -120,6 +118,7 @@ task(
     }
 
     today = new Date();
+
     /*
     text = template(LICENSE_TPL, {DATE: today.getFullYear()});
 
