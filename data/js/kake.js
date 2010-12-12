@@ -318,7 +318,7 @@ var SHOW_ERROR = (function (window) {
       ;
 
     return function (title, error) {
-        jq('#error-string').html(error.message);
+        jq('#error-string').html(error.name +': '+ error.message);
         jq('#error-line').html(error.lineNumber);
         jq('#error-file').html(error.fileName);
         jq('#error-stack').html(error.stack);
