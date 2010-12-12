@@ -42,6 +42,11 @@ var N = {
           , failed: 'project.load.failed'
         }
     }
+  , console: {
+        out: 'console.out'
+      , warn: 'console.warn'
+      , err: 'console.warn'
+    }
 };
 
 // Throw later.
@@ -365,6 +370,63 @@ var BUTTON = function (jq, handler, disabled) {
 
     return self;
 };
+
+// Anonymous console module.
+// -------------------------
+(function (window) {
+    'use strict';
+    var jq = window.jQuery
+      , notifications = window.NOTIFICATIONS
+
+      // Cached jQuery collections.
+      , jq_output
+
+      // Cached jQuery templates.
+      , jq_out_tpl
+      , jq_warn_tpl
+      , jq_err_tpl
+      ;
+
+    function on_out(id, msg, data) {
+        jq.tmpl(jq_out_tpl, {message: data}).appendTo(jq_output);
+    }
+
+    function on_warn(id, msg, data) {
+        jq.tmpl(jq_out_tpl, {message: data}).appendTo(jq_output);
+    }
+
+    function on_err(id, msg, data) {
+        data = data || {};
+        data.error_string = data.name +': '+ data.message;
+        data.line = data.lineNumber;
+        data.file = data.fileName;
+        jq.tmpl(jq_out_tpl, data).appendTo(jq_output);
+    }
+
+    jq(function (jq) {
+        // Cache some jQuery collections.
+        jq_output = jq('#output');
+
+        // Build and cache the templates.
+        jq_out_tpl = jq('#console-out-template').template();
+        jq_warn_tpl = jq('#console-warn-template').template();
+        jq_err_tpl = jq('#console-err-template').template();
+    });
+
+    // Initialize this module as soon as the global mailbox is ready.
+    notifications.on(N.mailbox_ready, function (mailbox) {
+        mailbox.observe('project.guiout', on_out);
+        mailbox.observe('project.guiwarn', on_warn);
+        mailbox.observe('project.guierr', on_err);
+    });
+
+    notifications.on(N.console.out, on_out);
+    notifications.on(N.console.warn, on_warn);
+    notifications.on(N.console.err, on_err);
+    notifications.on(N.project.load.rendered, function (id) {
+        on_out(null, null, 'Project build script loaded: '+ id);
+    });
+}(window));
 
 // Anonymous project module.
 // -------------------------

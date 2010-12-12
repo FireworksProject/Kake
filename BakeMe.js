@@ -1,18 +1,18 @@
 var kake = require('kake')
   , console = kake.console
+  , guiout = kake.guiout
+  , guiwarn = kake.guiwarn
+  , guierr = kake.guierr
   , task = kake.task
   , settings = kake.settings
   , template = kake.template
   //, promises = require('fireworks/promises/full')
   //, iter = require('fireworks/iter')
   //, trim = require('fireworks/utils/string/trim')
-
   , path = kake.path
 
   //, iter = kake.iter
   , stash = kake.stash
-  //, print = kake.print
-  //, print_err = kake.print_err
 
   , DIR = path(settings('DIR'))
   , SRC = DIR.join('src')
@@ -20,7 +20,12 @@ var kake = require('kake')
   , DATA_DIR = DIR.join('data')
   , TEMP = DIR.join('temp')
   , LICENSE_TPL = SRC.join('MIT-LICENSE.tpl')
-  //, LICENSE_LOCATIONS = []
+
+  , LICENSE_NAME = 'MIT-LICENSE'
+  , LICENSE_LOCATIONS = [
+        DIR.join(LICENSE_NAME)
+    ]
+
   //, SHARED = PROJECT.join('shared')
   //, FIREWORKS_SRC = SHARED.join('fireworks')
   //, JQUERY_SRC = SHARED.join('jquery')
@@ -107,46 +112,46 @@ task(
                  'or this is the first build of a new year.'
   }
 , function (t) {
-    var last = stash.get('license.last_update') || 0
+    guiout('start task "licensing"');
+    var last
       , current
       , today
       , text
+      , i
       ;
 
     if (!LICENSE_TPL.exists()) {
         throw new Error(LICENSE_TPL +' does not exist.');
     }
 
-    /*
-    current = LICENSE_TPL.mtime().getTime();
-    if (current > 0 && last > current) {
-        // TODO: Test for a new year.
-        return;
+    i = LICENSE_LOCATIONS.length;
+    while ((i -= 1) >= 0) {
+        if (!LICENSE_LOCATIONS[i].exists()) {
+            break;
+        }
     }
-    */
 
+    // If all the expected license files exist, we compare the last modified
+    // date of the template and check for a new year.
     today = new Date();
-
-    text = template(LICENSE_TPL.read())({YEAR: today.getFullYear()});
-    console.log('text', text);
-
-    /*
-    write_promises = iter(LICENSE_LOCATIONS).map(function (path) {
-        return path.overwrite(text);
-    });
-
-    function when_fulfilled(results) {
-        results.each(function (path) {
-            print('Wrote new license to: '+ path[0].relative(PROJECT));
-        });
+    if (i < 0) {
+        last = stash.get('license.last_update') || 0;
+        current = LICENSE_TPL.mtime().getTime();
+        // If the last build is newer than the last modify time of the license
+        // template, or we have not entered a new year; we can skip this task.
+        if (last >= current ||
+            new Date(last).getFullYear() === today.getFullYear()) {
+            guiout('skipping: license file re-builds '+
+                   'are not necessary for this build.');
+            return;
+        }
     }
 
-    promises.join(write_promises)
-        (when_fulfilled, report_errors, t.done)
-        ;
-        */
+    guiout('building new licenses');
+    text = template(LICENSE_TPL.read())({YEAR: today.getFullYear()});
+    guiout(text);
 
-    //stash.set('license.last_update', today.getTime());
+    stash.set('license.last_update', today.getTime());
 });
 /*
 
