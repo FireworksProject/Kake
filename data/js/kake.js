@@ -22,12 +22,15 @@
 , strict: false
 */
 
-// JSLint 'strict' is false because we use it within the module closure
-// functions; not the whole script.
-// JSLint 'laxbreak' is true because we are using comma-first JS syntax.
+// * JSLint 'strict' is false because we use it within the module closure
+//   functions; not the whole script.
+// * JSLint 'laxbreak' is true because we are using comma-first JS syntax.
 
 /*global window: false, require: false, exports: true, console: false, dump: false */
 
+// Notification Registry
+// ---------------------
+//
 // Notification name registry for this page. By centralizing a registry of
 // notification event names here we make it easier to understand what is going
 // on below. See the `NOTIFICATIONS` module defined below for details.
@@ -330,6 +333,10 @@ var SHOW_ERROR = (function (window) {
     };
 }(window));
 
+// Button widget constructor.
+// --------------------------
+//
+// Depends on jQuery UI `.button()` API.
 var BUTTON = function (jq, handler, disabled) {
     var self = {};
 
@@ -340,6 +347,7 @@ var BUTTON = function (jq, handler, disabled) {
         jq.button().click(handler);
     }
 
+    // Unbind handler and set jQuery UI disabled state.
     self.disable = function () {
         if (!disabled) {
             jq.button('disable').unbind('click', handler);
@@ -347,6 +355,7 @@ var BUTTON = function (jq, handler, disabled) {
         }
     };
 
+    // Bind handler and set jQuery UI enabled state.
     self.enable = function () {
         if (disabled) {
             jq.button('enable').click(handler);
@@ -521,7 +530,6 @@ var BUTTON = function (jq, handler, disabled) {
         jq_reload_project = button( jq('#reload-project')
                                   , reload_project
                                   , true);
-
 
         // Build and cache the templates.
         jq_setting_tpl = jq('#setting-template').template();
