@@ -2,6 +2,7 @@ var kake = require('kake')
   , console = kake.console
   , task = kake.task
   , settings = kake.settings
+  , template = kake.template
   //, promises = require('fireworks/promises/full')
   //, iter = require('fireworks/iter')
   //, trim = require('fireworks/utils/string/trim')
@@ -12,7 +13,6 @@ var kake = require('kake')
   , stash = kake.stash
   //, print = kake.print
   //, print_err = kake.print_err
-  //, template = kake.template
 
   , DIR = path(settings('DIR'))
   , SRC = DIR.join('src')
@@ -108,20 +108,29 @@ task(
   }
 , function (t) {
     var last = stash.get('license.last_update') || 0
-      , current = LICENSE_TPL.mtime().getTime()
+      , current
       , today
-      , write_promises
+      , text
       ;
 
-    if (last > current) {
+    if (!LICENSE_TPL.exists()) {
+        throw new Error(LICENSE_TPL +' does not exist.');
+    }
+
+    /*
+    current = LICENSE_TPL.mtime().getTime();
+    if (current > 0 && last > current) {
+        // TODO: Test for a new year.
         return;
     }
+    */
 
     today = new Date();
 
-    /*
-    text = template(LICENSE_TPL, {DATE: today.getFullYear()});
+    text = template(LICENSE_TPL.read())({YEAR: today.getFullYear()});
+    console.log('text', text);
 
+    /*
     write_promises = iter(LICENSE_LOCATIONS).map(function (path) {
         return path.overwrite(text);
     });
@@ -137,7 +146,7 @@ task(
         ;
         */
 
-    stash.set('license.last_update', today.getTime());
+    //stash.set('license.last_update', today.getTime());
 });
 /*
 
