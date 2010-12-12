@@ -149,7 +149,9 @@ task(
 
     guiout('building new licenses');
     text = template(LICENSE_TPL.read())({YEAR: today.getFullYear()});
-    guiout(text);
+    LICENSE_LOCATIONS.forEach(function (license_path) {
+        license_path.write(text);
+    });
 
     stash.set('license.last_update', today.getTime());
 });
