@@ -193,6 +193,23 @@ var NOTIFICATIONS = (function (window) {
         });
     };
 
+    /**
+     * Unregister a handler for a notification path.
+     * @param {String} path Namespaced event name.
+     * @param {Function} fn The callback function to remove.
+     */
+    self.ignore = function ignore(path, fn) {
+        if (!has.call(registry, path)) {
+            return;
+        }
+
+        var i = registry[path].indexOf(fn);
+
+        if (i > -1) {
+            registry[path] = registry[path].splice(i, 1);
+        }
+    };
+
     return self;
 }(window));
 
@@ -541,12 +558,20 @@ var BUTTON = function (jq, handler, disabled) {
         jq_load_project = button(jq('#load-project'), load_project);
     });
 
-    notifications.on(N.project.load.failed, function () {
+    function on_load_failed() {
         jq_load_project.enable();
-    });
-    notifications.on(N.project.load.rendered, function () {
+    }
+
+    function on_load_success() {
+        notifications.ignore(N.project.load.failed, on_load_failed);
+        notifications.ignore(N.project.load.rendered, on_load_success);
+        jq('#project-tabset').tabs();
         jq('#start').hide();
-    });
+        jq('#project').show();
+    }
+
+    notifications.on(N.project.load.failed, on_load_failed);
+    notifications.on(N.project.load.rendered, on_load_success);
 
     // Initialize this module as soon as the global mailbox is ready.
     notifications.on(N.mailbox_ready, function (mailbox) {
