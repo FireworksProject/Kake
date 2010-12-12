@@ -124,12 +124,14 @@ var NOTIFICATIONS = (function (window) {
 
     // Call a function for each '.' deliniated part of an event path-name.
     function descend_path(path, fn) {
+        var i;
         while (path) {
             // An event handler can stop propagation by returning `false`.
             if (fn(path) === false) {
                 break;
             }
-            path = path.slice(0, path.lastIndexOf('.'));
+            i = path.lastIndexOf('.');
+            path = i === -1 ? null : path.slice(0, i);
         }
     }
 
@@ -212,9 +214,8 @@ var NOTIFICATIONS = (function (window) {
         }
 
         var i = registry[path].indexOf(fn);
-
         if (i > -1) {
-            registry[path] = registry[path].splice(i, 1);
+            registry[path].splice(i, 1);
         }
     };
 
