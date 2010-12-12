@@ -472,8 +472,7 @@ var BUTTON = function (jq, handler, disabled) {
         render_tasks(data.tasks);
         jq_build_project.enable();
         jq_reload_project.enable();
-        notifications.emit(N.project.load.rendered);
-        jq_project.show();
+        notifications.emit(N.project.load.rendered, [current_id]);
     }
 
     // Mailbox message handler for 'project.load'. The 'project.load' mailbox
@@ -492,7 +491,7 @@ var BUTTON = function (jq, handler, disabled) {
             log('Unexpected mailbox message to project.load:');
             log(id, msg, data);
         }
-        notifications.emit(N.project.load.failed);
+        notifications.emit(N.project.load.failed, [id]);
     }
 
     // Mailbox message handler for the 'project.runner' mailbox message.
