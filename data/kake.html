@@ -1,4 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- vim: set expandtab: -->
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <title>Kake</title>
@@ -27,23 +28,30 @@
     <p><button id="load-project">Load a Project</button></p>
   </div>
   <div id="project">
-    <div id="project-ui">
-      <div id="start">
-        <p>
-          <button id="build-project">Build</button>
-          <button id="reload-project">Reload</button>
-        </p>
-      </div>
-      <div>
+    <p>
+      <button id="build-project">Build</button>
+      <button id="reload-project">Reload</button>
+    </p>
+    <div id="project-tabset">
+      <ul>
+        <li><a href="#configuration-tab">Configuration</a></li>
+        <li><a href="#settings-tab">Settings</a></li>
+        <li><a href="#tasks-tab">Tasks</a></li>
+        <li><a href="#console-tab">Console</a></li>
+      </ul>
+      <div id="configuration-tab">
+        <h3>Configurations</h3>
+      </div><!-- end #configurations-tab -->
+      <div id="settings-tab">
         <h3>Settings</h3>
-        <div id="settings-box"><ul id="settings"></ul></div>
+        <ul id="settings"></ul>
         <script id="setting-template" type="text/x-jquery-template">
           <li class="settings">
           <span class="setting-name">${name}</span> : <span class="setting-value">${value}</span>
           </li>
         </script>
-      </div>
-      <div>
+      </div><!-- end #settings-tab -->
+      <div id="tasks-tab">
         <h3>Tasks</h3>
         <div id="tasks-box"><ul id="tasks"></ul></div>
         <script id="task-template" type="text/x-jquery-template">
@@ -58,8 +66,30 @@
             </ul>
           </li>
         </script>
-      </div>
-    </div>
+      </div><!-- end #tasks-tab -->
+      <div id="console-tab">
+        <h3>Console</h3>
+        <ul id="output"></ul>
+        <script id="console-out-template" type="text/x-jquery-template">
+          <li class="console out">
+          <p class="console out">${message}</p>
+          </li>
+        </script>
+        <script id="console-warn-template" type="text/x-jquery-template">
+          <li class="console warn">
+          <p class="console warn">${message}</p>
+          </li>
+        </script>
+        <script id="console-err-template" type="text/x-jquery-template">
+          <li class="console err">
+            <p id="error-string">${error_string}</p>
+            <p>line: <em id="error-line">${line}</em></p>
+            <p>file: <em id="error-file">${file}</em></p>
+            <pre><code id="error-stack">${stack}</code></pre>
+          </li>
+        </script>
+      </div><!-- end #console-tab -->
+    </div><!-- end #project-tabset -->
   </div><!-- end #project -->
 </div><!-- end #workspace -->
 
@@ -69,10 +99,10 @@
 <!-- special messenging element for inbound messages-->
 <script id="messenger-in" type="text/html"></script>
 
+<script type="text/javascript" src="./js/es5-shim.js"></script>
 <script type="text/javascript" src="./js/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="./js/jquery-ui-1.8.6.custom.min.js"></script>
 <script type="text/javascript" src="./js/jquery.ba-bbq.js"></script>
 <script type="text/javascript" src="./js/jquery.tmpl.beta1.js"></script>
-<script type="text/javascript" src="./js/es5-shim.js"></script>
 <script type="text/javascript" src="./js/kake.js"></script>
 </body></html>

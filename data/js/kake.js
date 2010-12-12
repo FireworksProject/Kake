@@ -383,7 +383,6 @@ var BUTTON = function (jq, handler, disabled) {
       , current_id // The id of the currently loaded project.
 
       // Cached jQuery collections.
-      , jq_project
       , jq_project_dialog
       , jq_build_project
       , jq_reload_project
@@ -521,7 +520,6 @@ var BUTTON = function (jq, handler, disabled) {
     jq(function (jq) {
         jq_project = jq('#project').hide();
         jq_project_dialog = jq('#project-dialog').hide();
-        jq_project.hide();
         jq_tasks = jq('#tasks');
         jq_settings = jq('#settings');
         jq_build_project = button( jq('#build-project')
