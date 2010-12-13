@@ -23,15 +23,6 @@ var kake = require('kake')
   ;
 
 task(
-  { name: 'create temp directory'
-  , description: 'Create the temporary build dir.'
-  }
-, function () {
-      TEMP.rm().mkpath();
-  }
-);
-
-task(
   { name: 'licensing'
   , description: 'Create the licenses from templates if the template is new, '+
                  'or this is the first build of a new year.'
