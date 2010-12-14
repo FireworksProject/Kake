@@ -9,7 +9,7 @@ var kake = require('kake')
   , path = kake.path
   , stash = kake.stash
 
-  , DIR = path(settings('DIR'))
+  , DIR = path(settings.get('DIR'))
   , SRC = DIR.join('src')
   , LIB_DIR = DIR.join('lib')
   , DATA_DIR = DIR.join('data')

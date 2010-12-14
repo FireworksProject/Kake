@@ -512,26 +512,25 @@ var BUTTON = function (jq, handler, disabled) {
 
     // data.name
     // data.value
-    function render_settings(data) {
-        data = Array.isArray(data) ? data : [data];
-        jq.tmpl(jq_setting_tpl, data).appendTo(jq_settings);
+    function render_settings(settings) {
+        settings = Object.keys(settings).map(function (name) {
+                   return {name: name, value: settings[name].value};
+               });
+        jq.tmpl(jq_setting_tpl, settings).appendTo(jq_settings);
     }
 
     // data = [task1, task1, ...]
     // task.name
     // task.description
     // task.deps
-    function render_tasks(data) {
-        jq.tmpl(jq_task_tpl, data).appendTo(jq_tasks);
+    function render_tasks(tasks) {
+        jq.tmpl(jq_task_tpl, tasks).appendTo(jq_tasks);
     }
 
     // Present the loaded project on the UI.
     function render(data) {
-        var settings = Object.keys(data.settings).map(function (name) {
-                           return {name: name, value: data.settings[name]};
-                       });
         teardown();
-        render_settings(settings);
+        render_settings(data.settings);
         render_tasks(data.tasks);
         jq_build_project.enable();
         jq_reload_project.enable();
