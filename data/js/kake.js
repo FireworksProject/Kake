@@ -443,7 +443,7 @@ var BUTTON = function (jq, handler, disabled) {
       , show_error = window.SHOW_ERROR
       , button = window.BUTTON
       
-      , current_id // The id of the currently loaded project.
+      , current_id = null// The id of the currently loaded project.
 
       // Cached jQuery collections.
       , jq_project_dialog
@@ -457,7 +457,7 @@ var BUTTON = function (jq, handler, disabled) {
       , jq_setting_tpl
 
       // Functions defined later.
-      , send
+      , send // (type_path, msg, data)
       , teardown
       ;
 
@@ -477,7 +477,7 @@ var BUTTON = function (jq, handler, disabled) {
     // Handler for the 'reload' button.
     function reload_project() {
         teardown();
-        send('project.load', current_id, 'reload');
+        send('project.load', 'reload');
     }
 
     // Handler for the 'build' button.
@@ -499,7 +499,7 @@ var BUTTON = function (jq, handler, disabled) {
             data.tasks.push(jq('p.task-name', el).html());
         });
 
-        send('project.runner', current_id, 'run', data);
+        send('project.runner', 'run', data);
     }
 
     // Reset the UI state.
@@ -524,7 +524,9 @@ var BUTTON = function (jq, handler, disabled) {
     }
 
     jq('p.setting.filepath').live('click', function (ev) {
-        alert(jq(this).html());
+        send( 'file_open_picker'
+            , jq(this).attr('id')
+            , {title: 'Choose file path setting value'});
     });
 
     // data = [task1, task1, ...]
@@ -584,6 +586,10 @@ var BUTTON = function (jq, handler, disabled) {
         jq_reload_project.enable();
     }
 
+    function on_file_open_picker(id, msg, data) {
+        jq('#'+ msg).children('span.setting-value').html(data);
+    }
+
     // Handler for jQuery DOM ready event. (Which probably already fired, so
     // this handler will get called immediately).
     jq(function (jq) {
@@ -605,9 +611,13 @@ var BUTTON = function (jq, handler, disabled) {
 
     // Initialize this module as soon as the global mailbox is ready.
     notifications.on(N.mailbox_ready, function (mailbox) {
-        send = mailbox.send;
-        mailbox.observe('project.load', on_project_load);
-        mailbox.observe('project.runner', on_project_run);
+        var observe = mailbox.observe;
+        send = function (type_path, msg, data) {
+            mailbox.send(type_path, current_id, msg, data);
+        };
+        observe('project.load', on_project_load);
+        observe('project.runner', on_project_run);
+        observe('file_open_picker', on_file_open_picker);
     });
 }(window));
 
