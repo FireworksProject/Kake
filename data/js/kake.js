@@ -514,10 +514,18 @@ var BUTTON = function (jq, handler, disabled) {
     // data.value
     function render_settings(settings) {
         settings = Object.keys(settings).map(function (name) {
-                   return {name: name, value: settings[name].value};
+                   var setting = settings[name];
+                   return { name: name
+                          , type: setting.type
+                          , value: setting.value
+                          };
                });
         jq.tmpl(jq_setting_tpl, settings).appendTo(jq_settings);
     }
+
+    jq('p.setting.filepath').live('click', function (ev) {
+        alert(jq(this).html());
+    });
 
     // data = [task1, task1, ...]
     // task.name
