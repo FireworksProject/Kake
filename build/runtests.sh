@@ -1,19 +1,26 @@
 #!/bin/bash
-ACTIVATE=$1/bin/activate
-DIR="$(cd "$(dirname "$0")" && pwd)"
-if ! [ -f $ACTIVATE ]; then
-    echo 'invalid Mozilla Addon SDK path: '$1 > $3
-    echo 'Program terminated unsuccessfully.' >> $3
-    exit 1
-fi
-if ! [ -f $2 ]; then
-    echo 'invalid Firefox binary path: '$2 > $3
-    echo 'Program terminated unsuccessfully.' >> $3
+activate_sdk=$1/bin/activate
+kake_dir="$(cd "$(dirname "$0")" && pwd)"
+if ! [ -f $activate_sdk ]; then
+    echo 'invalid Mozilla Addon SDK path: '$1
+    echo 'Program terminated unsuccessfully.'
     exit 1
 fi
 cd $1
-source $ACTIVATE
-cd $DIR
-cfx test --verbose -b $2 &> $3
-deactivate
+source $activate_sdk
+cd $kake_dir
+if [ -z "$2" ]; then
+    cfx test --verbose
+    deactivate
+    exit 0
+else
+    if [ -f $2 ]; then
+        cfx test --verbose -b $2
+        exit 0
+    else
+        echo 'invalid Firefox binary path: '$2
+        echo 'Program terminated unsuccessfully.'
+        exit 1
+    fi
+fi
 
