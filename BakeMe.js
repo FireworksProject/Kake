@@ -72,3 +72,13 @@ task(
     stash.set('license.last_update', today.getTime());
 });
 
+task(
+  { name: 'testing'
+  , description: 'Run automated tests.'
+  }
+, function (t) {
+    guiout('start task "testing"');
+    DIR.join('runtests.sh').run(function () {
+        console.debug('done testing');
+    });
+});
