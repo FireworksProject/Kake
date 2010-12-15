@@ -524,9 +524,15 @@ var BUTTON = function (jq, handler, disabled) {
     }
 
     jq('p.setting.filepath').live('click', function (ev) {
-        send( 'file_open_picker'
+        send( 'open_file_picker'
             , jq(this).attr('id')
             , {title: 'Choose file path setting value'});
+    });
+
+    jq('p.setting.folderpath').live('click', function (ev) {
+        send( 'open_folder_picker'
+            , jq(this).attr('id')
+            , {title: 'Choose folder path setting value'});
     });
 
     // data = [task1, task1, ...]
@@ -586,7 +592,7 @@ var BUTTON = function (jq, handler, disabled) {
         jq_reload_project.enable();
     }
 
-    function on_file_open_picker(id, msg, data) {
+    function on_open_file_picker(id, msg, data) {
         jq('#'+ msg).children('span.setting-value').html(data);
     }
 
@@ -617,7 +623,8 @@ var BUTTON = function (jq, handler, disabled) {
         };
         observe('project.load', on_project_load);
         observe('project.runner', on_project_run);
-        observe('file_open_picker', on_file_open_picker);
+        observe('open_file_picker', on_open_file_picker);
+        observe('open_folder_picker', on_open_file_picker);
     });
 }(window));
 
