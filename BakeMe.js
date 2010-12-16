@@ -10,10 +10,8 @@ var kake = require('kake')
   , stash = kake.stash
 
   , DIR = path(settings.get('DIR'))
+  , BUILD = DIR.join('build')
   , SRC = DIR.join('src')
-  , LIB_DIR = DIR.join('lib')
-  , DATA_DIR = DIR.join('data')
-  , TEMP = DIR.join('temp')
   , LICENSE_TPL = SRC.join('MIT-LICENSE.tpl')
 
   , LICENSE_NAME = 'MIT-LICENSE'
@@ -78,7 +76,7 @@ task(
   }
 , function (t) {
     guiout('start task "testing"');
-    DIR.join('runtests.sh').run(function () {
-        console.debug('done testing');
+    BUILD.join('runtests.sh').run(function (rv) {
+        console.debug('done testing', rv);
     });
 });
