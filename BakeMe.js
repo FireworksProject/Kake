@@ -4,6 +4,7 @@ var kake = require('kake')
   , guiwarn = kake.guiwarn
   , guierr = kake.guierr
   , task = kake.task
+  , async_task = kake.async_task
   , settings = kake.settings
   , template = kake.template
   , path = kake.path
@@ -20,12 +21,22 @@ var kake = require('kake')
     ]
   ;
 
+settings.declare({ key: 'MOZ_ADDON_SDK'
+                 , type: 'folderpath'
+                 , value: DIR.toString()
+                 });
+
+settings.declare({ key: 'FIREFOX_BINARY'
+                 , type: 'filepath'
+                 , value: ''
+                 });
+
 task(
   { name: 'licensing'
   , description: 'Create the licenses from templates if the template is new, '+
                  'or this is the first build of a new year.'
   }
-, function (t) {
+, function () {
     guiout('start task "licensing"');
     var last
       , current
@@ -49,6 +60,8 @@ task(
     // date of the template and check for a new year.
     today = new Date();
     if (i < 0) {
+        // TODO: test the mtime of the built licenses instead of using the
+        // stash.
         last = stash.get('license.last_update') || 0;
         current = LICENSE_TPL.mtime().getTime();
         // If the last build is newer than the last modify time of the license
@@ -70,13 +83,16 @@ task(
     stash.set('license.last_update', today.getTime());
 });
 
-task(
+async_task(
   { name: 'testing'
   , description: 'Run automated tests.'
   }
-, function (t) {
+, function () {
     guiout('start task "testing"');
-    BUILD.join('runtests.sh').run(function (rv) {
-        console.debug('done testing', rv);
+    var self = this
+      , args = [settings.get('MOZ_ADDON_SDK'), settings.get('FIREFOX_BINARY')]
+      ;
+    BUILD.join('runtests.sh').run(args, function (rv) {
+        self.ok();
     });
 });
