@@ -39,11 +39,13 @@
         <li><a href="#console-tab">Console</a></li>
       </ul>
       <div id="settings-tab">
-        <h3>Settings</h3>
+        <p>Configuration: <em id="config-name"></em></p>
         <ul id="settings"></ul>
         <script id="setting-template" type="text/x-jquery-template">
           <li class="settings">
-            <p id="setting-${name}" class="setting ${type}">
+          <!-- type = string|number|filepath|folderpath|boolean -->
+          <!-- stats = ok|undefined|invalid|undeclared -->
+          <p id="setting-${name}" class="setting setting-type-${type} setting-status${status}">
               <span class="setting-name">${name}</span> : <span class="setting-value">${value}</span>
             </p>
           </li>

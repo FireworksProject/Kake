@@ -19,11 +19,9 @@
 , regexp: true
 , newcap: true
 , immed: true
-, strict: false
+, strict: true
 */
 
-// * JSLint 'strict' is false because we use it within the module closure
-//   functions; not the whole script.
 // * JSLint 'laxbreak' is true because we are using comma-first JS syntax.
 
 /*global window: false, require: false, exports: true, console: false, dump: false */
@@ -232,6 +230,7 @@ var NOTIFICATIONS = (function (window) {
 // The global mailbox messenger allows us to communicate with super privileged
 // library code through the secure channels provided by the Mozilla Addon SDK.
 (function (window) {
+    'use strict';
     var document = window.document
       , loc = window.location
       , notifications = window.NOTIFICATIONS
@@ -344,6 +343,7 @@ var SHOW_ERROR = (function (window) {
 //
 // Depends on jQuery UI `.button()` API.
 var BUTTON = function (jq, handler, disabled) {
+    'use strict';
     var self = {};
 
     if (disabled) {
@@ -446,6 +446,7 @@ var BUTTON = function (jq, handler, disabled) {
       , current_id = null// The id of the currently loaded project.
 
       // Cached jQuery collections.
+      , jq_project
       , jq_project_dialog
       , jq_build_project
       , jq_reload_project
@@ -480,25 +481,35 @@ var BUTTON = function (jq, handler, disabled) {
         send('project.load', 'reload');
     }
 
-    // Handler for the 'build' button.
-    function run_project() {
-        jq_build_project.disable();
-        jq_reload_project.disable();
-
-        var data = {tasks: [], settings: {}};
-
+    // Extract the settings values from the HTML.
+    function get_settings() {
+        var rv = {};
         jq('li.settings').each(function (i, el) {
             var name = jq('span.setting-name', el).html()
               , value = jq('span.setting-value', el).html()
               ;
 
-            data.settings[name] = value;
+            rv[name] = value;
         });
+        return rv;
+    }
+
+    // Handler for the 'build' button.
+    function run_project() {
+        jq_build_project.disable();
+        jq_reload_project.disable();
+
+        var settings = get_settings()
+          , data = {tasks: [], settings: settings}
+          , config_name = jq('#config-name').html()
+          ;
 
         jq('li.tasks.run').each(function (i, el) {
             data.tasks.push(jq('p.task-name', el).html());
         });
 
+        send('config.save', config_name, settings);
+        send('config.default', config_name);
         send('project.runner', 'run', data);
     }
 
@@ -511,25 +522,50 @@ var BUTTON = function (jq, handler, disabled) {
     };
 
     // data.name
-    // data.value
-    function render_settings(settings) {
-        settings = Object.keys(settings).map(function (name) {
-                   var setting = settings[name];
-                   return { name: name
-                          , type: setting.type
-                          , value: setting.value
-                          };
-               });
+    // data.settings
+    function render_configs(configs) {
+        var settings = Object.keys(configs.settings).map(function (name) {
+                var setting = configs.settings[name]
+                  , status
+                  ;
+
+                switch (setting.status) {
+                case 'ok':
+                    status = 'ok';
+                    break;
+                case 'undefined':
+                    // This setting is not defined in the configuration.
+                    status = 'undefined';
+                    break;
+                case 'SettingTypeError':
+                    // This setting value was the incorrect type in the
+                    // configuration.
+                    status = 'invalid';
+                    break;
+                case 'SettingAccessError':
+                    // This setting value has not been declared in the build
+                    // script. 
+                    status = 'undeclared';
+                    break;
+                }
+
+                return { name: name
+                       , status: status
+                       , type: setting.type
+                       , value: setting.value
+                       };
+            });
+        jq('#config-name').html(configs.name);
         jq.tmpl(jq_setting_tpl, settings).appendTo(jq_settings);
     }
 
-    jq('p.setting.filepath').live('click', function (ev) {
+    jq('p.setting-type-filepath').live('click', function (ev) {
         send( 'open_file_picker'
             , jq(this).attr('id')
             , {title: 'Choose file path setting value'});
     });
 
-    jq('p.setting.folderpath').live('click', function (ev) {
+    jq('p.setting-type-folderpath').live('click', function (ev) {
         send( 'open_folder_picker'
             , jq(this).attr('id')
             , {title: 'Choose folder path setting value'});
@@ -546,7 +582,7 @@ var BUTTON = function (jq, handler, disabled) {
     // Present the loaded project on the UI.
     function render(data) {
         teardown();
-        render_settings(data.settings);
+        render_configs(data.configs);
         render_tasks(data.tasks);
         jq_build_project.enable();
         jq_reload_project.enable();
@@ -630,6 +666,7 @@ var BUTTON = function (jq, handler, disabled) {
 
 // Initialize this page.
 (function (window) {
+    'use strict';
     var jq = window.jQuery
       , notifications = window.NOTIFICATIONS
       , button = window.BUTTON
