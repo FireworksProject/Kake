@@ -93,6 +93,7 @@ async_task(
       , args = [settings.get('MOZ_ADDON_SDK'), settings.get('FIREFOX_BINARY')]
       ;
     BUILD.join('runtests.sh').run(args, function (rv) {
+        guiout('end task "testing"');
         self.ok();
     });
 });
