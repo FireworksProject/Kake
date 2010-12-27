@@ -273,3 +273,83 @@ exports.write_read_rm = function (test) {
                     );
 };
 
+exports.run_invalid = function (test) {
+    var this_path = path.Path(url.toFilename(__url__)).parent();
+
+    test.assertRaises(
+          function () {
+              this_path.join('foo').run();
+          }
+        , 'path does not exist: '+ this_path.join('foo')
+        , '.run() path does not exist.'
+        );
+
+    test.assertRaises(
+          function () {
+              this_path.run();
+          }
+        , 'typeof .run() callback ["undefined"] !== "function"'
+        , '.run() expects a callback function'
+        );
+};
+
+exports.run_dir = function (test) {
+    var this_path = path.Path(url.toFilename(__url__)).parent();
+
+    test.waitUntilDone(3000);
+    this_path.run(function (err) {
+        test.assertEqual( err.message
+                        , 'not a file: "'+ this_path +'"'
+                        , 'tried to run a directory'
+                        );
+        test.done();
+    });
+};
+
+exports.run_noexec = function (test) {
+    var this_path = path.Path(url.toFilename(__url__));
+
+    test.waitUntilDone(3000);
+    this_path.run(function (err) {
+        test.assertEqual( err.message
+                        , 'execute permission denied: "'+ this_path +'"'
+                        , 'tried to run a directory'
+                        );
+        test.done();
+    });
+};
+
+exports.run_with_args = function (test) {
+    var this_path = path.Path(url.toFilename(__url__))
+                        .parent()
+                        .join('pathrun.sh')
+                        ;
+
+    test.waitUntilDone(3000);
+    this_path.run(['foo', 2], function (err, rv) {
+        test.assertEqual(typeof err, 'undefined', 'no error is detected');
+        test.assertEqual( rv 
+                        , this_path +'\nfoo\n2\n'
+                        , 'echo arguments'
+                        );
+        test.done();
+    });
+};
+
+exports.run_without_args = function (test) {
+    var this_path = path.Path(url.toFilename(__url__))
+                        .parent()
+                        .join('pathrun.sh')
+                        ;
+
+    test.waitUntilDone(3000);
+    this_path.run(function (err, rv) {
+        test.assertEqual(typeof err, 'undefined', 'no error is detected');
+        test.assertEqual( rv 
+                        , this_path +'\n\n\n'
+                        , 'echo arguments'
+                        );
+        test.done();
+    });
+};
+
