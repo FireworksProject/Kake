@@ -33,6 +33,13 @@ console.log('starting', __url__);
 
 var mtpl = require('future/micro-templating');
 
+exports.returns_function = function (test) {
+    test.assertEqual( typeof mtpl.template('')
+                    , 'function'
+                    , 'typeof .template("") == "function"'
+                    );
+};
+
 exports.invalid_params = function (test) {
     test.assertRaises(
           function () {
@@ -71,13 +78,6 @@ exports.invalid_params = function (test) {
         );
 };
 
-exports.returns_function = function (test) {
-    test.assertEqual( typeof mtpl.template('')
-                    , 'function'
-                    , 'typeof .template("") == "function"'
-                    );
-};
-
 exports.open_script_tag = function (test) {
     var tpl_1 = '<# (1 + 1)'
       , tpl_2 = '(1 + 1) #>'
@@ -110,6 +110,15 @@ exports.with_syntax_err = function (test) {
         , 'missing ; before statement'
         , 'syntax error in template'
         );
+
+    tpl = 'foo = <# 1 + 1 #>';
+    test.assertRaises(
+          function () {
+              var x = mtpl.template(tpl);
+          }
+        , 'missing ; before statement'
+        , 'use semicolen: <# 1 + 1 #>'
+        );
 };
 
 exports.simple_var_replacement = function (test) {
@@ -136,5 +145,11 @@ exports.simple_var_replacement = function (test) {
         , 'bar is not defined'
         , '{bar: 2}'
         );
+};
+
+exports.script_eval = function (test) {
+    // useless expression.
+    var tpl = mtpl.template('foo = <# "bar"; #>');
+    test.assertEqual(tpl(), 'foo = \r\n', '<# "bar"; #>');
 };
 
