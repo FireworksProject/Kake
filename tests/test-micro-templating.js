@@ -153,3 +153,34 @@ exports.script_eval = function (test) {
     test.assertEqual(tpl(), 'foo = \r\n', '<# "bar"; #>');
 };
 
+exports.multiline = function (test) {
+    var tpl1 = mtpl.template('foo = <#=foo#>\nbar = <#=bar#>')
+      , tpl2 = mtpl.template('foo = <#=foo#>\r\nbar = <#=bar#>')
+      , tpl3 = mtpl.template('foo = <#=foo#>\rbar = <#=bar#>')
+      , data = {foo: 1, bar: 2}
+      ;
+    test.assertEqual( tpl1(data)
+                    , 'foo = 1\r\nbar = 2'
+                    , 'foo = <#=foo#>\nbar = <#=bar#>'
+                    );
+    test.assertEqual( tpl2(data)
+                    , 'foo = 1\r\nbar = 2'
+                    , 'foo = <#=foo#>\r\nbar = <#=bar#>'
+                    );
+    test.assertEqual( tpl3(data)
+                    , 'foo = 1\r\nbar = 2'
+                    , 'foo = <#=foo#>\rbar = <#=bar#>'
+                    );
+};
+
+exports.for_loop = function (test) {
+    var tpl = '<# for (var i = 0; i < 3; i +=1) { #>'+
+              '  <#= foo[i] #>'+
+              '<# } #>';
+
+    test.assertEqual( mtpl.template(tpl)({foo: ['a', 'b', 'c']})
+                    , '\r\n  a\r\n  b\r\n  c\r\n'
+                    , 'looping template'
+                    );
+};
+
