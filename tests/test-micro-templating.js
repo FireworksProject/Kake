@@ -78,3 +78,63 @@ exports.returns_function = function (test) {
                     );
 };
 
+exports.open_script_tag = function (test) {
+    var tpl_1 = '<# (1 + 1)'
+      , tpl_2 = '(1 + 1) #>'
+      ;
+
+    test.assertRaises(
+          function () {
+            var x = mtpl.template(tpl_1);
+          }
+        , 'missing ; before statement'
+        , 'missing close tag'
+        );
+
+    test.assertRaises(
+          function () {
+            var x = mtpl.template(tpl_2);
+          }
+        , 'missing ) after argument list'
+        , 'missing open tag'
+        );
+};
+
+exports.with_syntax_err = function (test) {
+    var tpl = '<#foo () {}#>';
+
+    test.assertRaises(
+          function () {
+            var x = mtpl.template(tpl);
+          }
+        , 'missing ; before statement'
+        , 'syntax error in template'
+        );
+};
+
+exports.simple_var_replacement = function (test) {
+    var tpl = mtpl.template('foo = <#= bar #>')
+      , data = {bar: 'baz'}
+      ;
+
+    test.assertEqual(tpl(data), 'foo = baz', '{bar: "baz"}');
+    data = {bar: 2};
+    test.assertEqual(tpl(data), 'foo = 2', '{bar: 2}');
+    data = {bar: null};
+    test.assertEqual(tpl(data), 'foo = null', '{bar: 2}');
+    data = {bar: {}};
+    test.assertEqual(tpl(data), 'foo = [object Object]', '{bar: 2}');
+    data = {bar: []};
+    test.assertEqual(tpl(data), 'foo = ', '{bar: 2}');
+    data = {bar: false};
+    test.assertEqual(tpl(data), 'foo = false', '{bar: 2}');
+    data = {};
+    test.assertRaises(
+          function () {
+            tpl(data);
+          }
+        , 'bar is not defined'
+        , '{bar: 2}'
+        );
+};
+
