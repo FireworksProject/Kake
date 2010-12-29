@@ -150,37 +150,110 @@ exports.simple_var_replacement = function (test) {
 exports.script_eval = function (test) {
     // useless expression.
     var tpl = mtpl.template('foo = <# "bar"; #>');
-    test.assertEqual(tpl(), 'foo = \r\n', '<# "bar"; #>');
+    test.assertEqual(tpl(), 'foo = ', '<# "bar"; #>');
 };
 
 exports.multiline = function (test) {
     var tpl1 = mtpl.template('foo = <#=foo#>\nbar = <#=bar#>')
       , tpl2 = mtpl.template('foo = <#=foo#>\r\nbar = <#=bar#>')
       , tpl3 = mtpl.template('foo = <#=foo#>\rbar = <#=bar#>')
+      , tpl4 = mtpl.template('foo = <#=foo\n#> bar = <#=bar#>')
+      , tpl5 = mtpl.template('foo = <#=foo\r\n#> bar = <#=bar#>')
+      , tpl6 = mtpl.template('foo = <#=foo\r#> bar = <#=bar#>')
+      , tpl7 = mtpl.template('<#if(true)\n#>foo')
+      , tpl8 = mtpl.template('<#if(true)\r\n#>foo')
+      , tpl9 = mtpl.template('<#if(true)\r#>foo')
       , data = {foo: 1, bar: 2}
       ;
     test.assertEqual( tpl1(data)
-                    , 'foo = 1\r\nbar = 2'
-                    , 'foo = <#=foo#>\nbar = <#=bar#>'
+                    , 'foo = 1\nbar = 2'
+                    , 'foo = <#=foo#> newline bar = <#=bar#>'
                     );
     test.assertEqual( tpl2(data)
                     , 'foo = 1\r\nbar = 2'
-                    , 'foo = <#=foo#>\r\nbar = <#=bar#>'
+                    , 'foo = <#=foo#> return/newline bar = <#=bar#>'
                     );
     test.assertEqual( tpl3(data)
-                    , 'foo = 1\r\nbar = 2'
-                    , 'foo = <#=foo#>\rbar = <#=bar#>'
+                    , 'foo = 1\rbar = 2'
+                    , 'foo = <#=foo#> return bar = <#=bar#>'
+                    );
+    test.assertEqual( tpl4(data)
+                    , 'foo = 1 bar = 2'
+                    , 'foo = <#=foo newline #> = <#=bar#>'
+                    );
+    test.assertEqual( tpl5(data)
+                    , 'foo = 1 bar = 2'
+                    , 'foo = <#=foo return/newlind #> bar = <#=bar#>'
+                    );
+    test.assertEqual( tpl6(data)
+                    , 'foo = 1 bar = 2'
+                    , 'foo = <#=foo return #> bar = <#=bar#>'
+                    );
+    test.assertEqual( tpl7()
+                    , 'foo'
+                    , '<#if(true) newline #>foo'
+                    );
+    test.assertEqual( tpl8()
+                    , 'foo'
+                    , '<#if(true) return/newline #>foo'
+                    );
+    test.assertEqual( tpl9()
+                    , 'foo'
+                    , '<#if(true) return #>foo'
                     );
 };
 
 exports.for_loop = function (test) {
-    var tpl = '<# for (var i = 0; i < 3; i +=1) { #>'+
-              '  <#= foo[i] #>'+
-              '<# } #>';
+    var tpl = '<# for (var i = 0; i < 3; i +=1) { #>\n'+
+              '<#= i #>:<#= foo[i] #>\n'+
+              '<# } #>\n';
 
     test.assertEqual( mtpl.template(tpl)({foo: ['a', 'b', 'c']})
-                    , '\r\n  a\r\n  b\r\n  c\r\n'
+                    , '\n0:a\n\n1:b\n\n2:c\n\n'
                     , 'looping template'
+                    );
+};
+
+exports.if_block = function (test) {
+    var tpl = '<# if (a) { #>\n'+
+              'a\n'+
+              '<# } #>\n'+
+              '<# if (b) { #>\n'+
+              'and b\n'+
+              '<# } #>';
+
+    test.assertEqual( mtpl.template(tpl)({a: true, b: false})
+                    , '\na\n\n'
+                    , 'if a'
+                    );
+    test.assertEqual( mtpl.template(tpl)({a: false, b: true})
+                    , '\n\nand b\n'
+                    , 'if b'
+                    );
+    test.assertEqual( mtpl.template(tpl)({a: true, b: true})
+                    , '\na\n\n\nand b\n'
+                    , 'if a and b'
+                    );
+
+    // Better newlines
+    tpl = '<# if (a) {\n'+
+          '#>a<#\n'+
+          '}\n'+
+          'if (b) {\n'+
+          '#> and b<#\n'+
+          '} #>\n';
+
+    test.assertEqual( mtpl.template(tpl)({a: true, b: false})
+                    , 'a\n'
+                    , 'if a'
+                    );
+    test.assertEqual( mtpl.template(tpl)({a: false, b: true})
+                    , ' and b\n'
+                    , 'if b'
+                    );
+    test.assertEqual( mtpl.template(tpl)({a: true, b: true})
+                    , 'a and b\n'
+                    , 'if a and b'
                     );
 };
 
