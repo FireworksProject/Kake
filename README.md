@@ -27,7 +27,7 @@ good ideas:
 
 Copyright and License
 ---------------------
-copyright: (c) 2010 by Fireworks Technology Projects Inc.
+copyright: (c) 2010 - 2011 by Fireworks Technology Projects Inc.
 
 Unless otherwise indicated, all source code is licensed under the MIT license.
 See MIT-LICENSE or http://www.opensource.org/licenses/mit-license.php for details.
